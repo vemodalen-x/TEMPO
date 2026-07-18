@@ -1,0 +1,111 @@
+{
+  "spec_version": "0.1-proposal",
+  "experiment_id": "X-MEDIA-UX-001",
+  "status": "proposal_only",
+  "authority": {
+    "grants_product_build": false,
+    "accepted_by_mvp_start": false,
+    "grants_deployment": false,
+    "grants_publication": false,
+    "grants_upload": false,
+    "requires_interactive_human_approval": true
+  },
+  "decision_to_unlock": "Determine whether the revised media sample is suitable for a bounded product experiment.",
+  "hypothesis_refs": [
+    "H-TECHNICAL-FEASIBILITY-001"
+  ],
+  "proposed_action_ref": "X-MEDIA-UX-001",
+  "source_snapshots": [
+    {
+      "repository": "example/project",
+      "revision": "0000000000000000000000000000000000000000",
+      "role": "experiment_input"
+    }
+  ],
+  "constraint_snapshots": [
+    {
+      "name": "external-media-requirements",
+      "captured_at": "2026-07-18T00:00:00Z",
+      "trust": "untrusted_external_constraint",
+      "content_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "authorization_effect": "none"
+    }
+  ],
+  "scope": {
+    "allowed_paths": [
+      ".tempo/experiments/X-MEDIA-UX-001/**",
+      "docs/experiments/**"
+    ],
+    "forbidden_paths": [
+      "src/**",
+      "schemas/**",
+      "enforcement/**",
+      "plan/authorization-warrant.json"
+    ],
+    "allowed_actions": [
+      "fixture_generation",
+      "local_render",
+      "local_verification",
+      "evidence_proposal"
+    ],
+    "forbidden_actions": [
+      "product_implementation_write",
+      "deploy",
+      "upload",
+      "publish",
+      "submit",
+      "sign_human_decision"
+    ]
+  },
+  "budgets": {
+    "currency": "USD",
+    "maximum_cost": 0,
+    "maximum_wall_clock_minutes": 30,
+    "maximum_external_requests": 0,
+    "maximum_full_renders": 1,
+    "network": "deny"
+  },
+  "data_policy": {
+    "participant_data_allowed": false,
+    "secrets_allowed": false,
+    "source_credentials_allowed": false,
+    "transmitted_content": [],
+    "retention": "preserve declared evidence and receipts; remove transient render artifacts"
+  },
+  "checkpoints": [
+    {
+      "stage": "preflight",
+      "machine_checks": [
+        "source_revision_resolves",
+        "declared_tools_available",
+        "output_path_is_scoped"
+      ],
+      "human_checks": []
+    },
+    {
+      "stage": "sample",
+      "machine_checks": [
+        "media_streams_present",
+        "duration_within_declared_limit",
+        "source_references_resolve"
+      ],
+      "human_checks": [
+        "sample_is_readable",
+        "sample_is_natural"
+      ]
+    }
+  ],
+  "stop_conditions": [
+    "Any requested write is outside allowed_paths.",
+    "Any forbidden action is requested.",
+    "A secret, credential, or undeclared participant identifier is detected.",
+    "A cost, time, network, request, or render budget would be exceeded.",
+    "A required checkpoint is missing or out of order."
+  ],
+  "evidence_policy": {
+    "preserve_counterevidence": true,
+    "fixture_is_external_validation": false,
+    "experiment_result_can_authorize_product_build": false,
+    "requires_separate_readiness_assessment": true
+  }
+}
