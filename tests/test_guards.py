@@ -10,6 +10,7 @@ from tests.support import SESSION, WorkspaceCase, write_json
 from tempo.errors import CheckerFailure, PolicyBlock
 from tempo.guards import evaluate_event
 from tempo.util import canonical_relpath
+from tempo.warrant import start
 
 
 class GuardRegressionTests(WorkspaceCase):
@@ -98,6 +99,15 @@ class GuardRegressionTests(WorkspaceCase):
     def test_valid_warrant_allows_in_scope_guard_event(self) -> None:
         self.install_valid_case()
         self.authorize_demo()
+        start(
+            self.workspace,
+            task_id="T-TEST-001",
+            path="src/tempo/feature.py",
+            lane="core",
+            action="implementation_write",
+            actor="agent:builder",
+            session=SESSION,
+        )
 
         result = evaluate_event(
             self.workspace,
@@ -112,6 +122,22 @@ class GuardRegressionTests(WorkspaceCase):
         )
 
         self.assertTrue(result["allowed"])
+
+    def test_authorized_without_start_does_not_allow_implementation(self) -> None:
+        self.install_valid_case()
+        self.authorize_demo()
+
+        self.assert_policy_code(
+            "MVP_START_REQUIRED",
+            {
+                "tool": "edit_file",
+                "input": {"path": "src/tempo/feature.py", "new_string": "enabled = True"},
+                "actor": "agent:builder",
+                "session": SESSION,
+                "lane": "core",
+                "action": "implementation_write",
+            },
+        )
 
     def test_agent_cannot_modify_signer_owned_artifact(self) -> None:
         self.assert_policy_code(

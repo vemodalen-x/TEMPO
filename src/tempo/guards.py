@@ -11,7 +11,7 @@ from typing import Any
 from .config import config_value, load_config
 from .errors import CheckerFailure, PolicyBlock
 from .util import Workspace, canonical_relpath, load_json
-from .warrant import validate_warrant
+from .warrant import validate_build_lease
 
 SECRET_PREFIX = re.compile(
     r"(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_\-]{16,}"
@@ -129,11 +129,15 @@ def _implementation_guard(
         )
     if policy_path.startswith(PREAUTH_WRITE_PREFIXES_CASEFOLDED):
         return
-    warrant = validate_warrant(
+    lease = validate_build_lease(
         workspace,
         actor=str(event.get("actor", "agent:unknown")),
         session=str(event.get("session", "unknown")),
+        lane=str(event.get("lane", "")),
+        action=str(event.get("action", "implementation_write")),
+        path=path,
     )
+    warrant = lease
     action = str(event.get("action", "implementation_write"))
     lane = event.get("lane")
     if action not in warrant["allowed_actions"]:
@@ -190,12 +194,15 @@ def evaluate_event(workspace: Workspace, event: dict[str, Any]) -> dict[str, Any
         if finding:
             raise PolicyBlock("SECRET_DETECTED", f"{finding} in command")
         if event.get("phase") == "implementation":
-            warrant = validate_warrant(
+            action = str(event.get("action", "implementation_write"))
+            lease = validate_build_lease(
                 workspace,
                 actor=str(event.get("actor", "agent:unknown")),
                 session=str(event.get("session", "unknown")),
+                lane=str(event.get("lane", "")),
+                action=action,
             )
-            if event.get("action", "build") not in warrant["allowed_actions"]:
+            if action not in lease["allowed_actions"]:
                 raise PolicyBlock("ACTION_NOT_AUTHORIZED", "Implementation command is outside warrant")
         return {"ok": True, "allowed": True, "tool": tool}
 
