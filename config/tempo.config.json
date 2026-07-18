@@ -1,103 +1,207 @@
 {
-  "project": {
-    "track": "Work & Productivity"
-  },
-  "readiness": {
-    "weights": {
-      "problem_evidence": 14,
-      "target_segment_clarity": 8,
-      "desirability": 10,
-      "economic_value": 10,
-      "distribution_feasibility": 8,
-      "differentiation": 7,
-      "technical_feasibility": 8,
-      "evidence_quality": 12,
-      "expected_decision_value": 8,
-      "implementation_cost": 5,
-      "strategic_fit": 5,
-      "risk_exposure": 5
-    },
-    "floors": {
-      "problem_evidence": 60,
-      "target_segment_clarity": 50,
-      "desirability": 50,
-      "economic_value": 45,
-      "distribution_feasibility": 40,
-      "differentiation": 35,
-      "technical_feasibility": 50,
-      "evidence_quality": 60,
-      "expected_decision_value": 50,
-      "implementation_cost": 40,
-      "strategic_fit": 35,
-      "risk_exposure": 50
-    },
-    "aggregate_threshold": 70
-  },
-  "evidence": {
-    "external_source_types": [
-      "customer_interview",
-      "observed_user_behavior",
-      "demand_or_conversion_signal",
-      "market_or_competitor_research",
-      "technical_benchmark",
-      "cost_measurement",
-      "regulatory_or_policy_source",
-      "experiment_result"
-    ],
-    "model_generated_type": "model_generated_synthesis",
-    "default_freshness_days": 90
-  },
-  "warrant": {
-    "protected_artifacts": [
-      "plan/decision-brief.json",
-      "plan/hypotheses.json",
-      "plan/evidence/manifest.jsonl",
-      "plan/readiness-policy.json",
-      "plan/mvp-charter.json",
-      "config/tempo.config.json"
-    ],
-    "max_ttl_hours": 24
-  },
-  "schedule": {
-    "milestones": [
-      {"name": "business_framing_complete", "percent": 8},
-      {"name": "readiness_assessment", "percent": 12},
-      {"name": "mvp_authorized_or_rejected", "percent": 15},
-      {"name": "runnable_skeleton", "percent": 20},
-      {"name": "happy_path", "percent": 45},
-      {"name": "de_mock", "percent": 62},
-      {"name": "coherent_product", "percent": 70},
-      {"name": "feature_freeze", "percent": 76},
-      {"name": "judge_runnable", "percent": 82},
-      {"name": "submission_filed", "percent": 95}
-    ]
-  },
-  "guards": {
-    "freeze_allow": [
-      "docs/**",
-      "demo/**",
-      "submission/**",
-      "samples/**",
-      "README.md",
-      ".tempo/receipts/**"
-    ],
-    "credential_paths": [
-      "~/.ssh",
-      "~/.aws",
-      "~/.config/gcloud",
-      "~/.tempo/creds",
-      "~/.codex/auth.json"
-    ],
-    "secret_entropy_min": 4.5,
-    "secret_keyword_min_length": 32
-  },
-  "verification": {
-    "whole_suite_timeout_seconds": 180,
-    "receipt_dir": ".tempo/receipts",
-    "container": {
-      "image": "python:3.13.14-slim-bookworm@sha256:9d7f287598e1a5a978c015ee176d8216435aaf335ed69ac3c38dd1bbb10e8d64",
-      "uid": 65532,
-      "network": "none"
-    }
-  }
+    "project":  {
+                    "track":  "Work \u0026 Productivity"
+                },
+    "readiness":  {
+                      "weights":  {
+                                      "problem_evidence":  14,
+                                      "target_segment_clarity":  8,
+                                      "desirability":  10,
+                                      "economic_value":  10,
+                                      "distribution_feasibility":  8,
+                                      "differentiation":  7,
+                                      "technical_feasibility":  8,
+                                      "evidence_quality":  12,
+                                      "expected_decision_value":  8,
+                                      "implementation_cost":  5,
+                                      "strategic_fit":  5,
+                                      "risk_exposure":  5
+                                  },
+                      "floors":  {
+                                     "problem_evidence":  60,
+                                     "target_segment_clarity":  50,
+                                     "desirability":  50,
+                                     "economic_value":  45,
+                                     "distribution_feasibility":  40,
+                                     "differentiation":  35,
+                                     "technical_feasibility":  50,
+                                     "evidence_quality":  60,
+                                     "expected_decision_value":  50,
+                                     "implementation_cost":  40,
+                                     "strategic_fit":  35,
+                                     "risk_exposure":  50
+                                 },
+                      "aggregate_threshold":  70
+                  },
+    "evidence":  {
+                     "external_source_types":  [
+                                                   "customer_interview",
+                                                   "observed_user_behavior",
+                                                   "demand_or_conversion_signal",
+                                                   "market_or_competitor_research",
+                                                   "technical_benchmark",
+                                                   "cost_measurement",
+                                                   "regulatory_or_policy_source",
+                                                   "experiment_result"
+                                               ],
+                     "model_generated_type":  "model_generated_synthesis",
+                     "default_freshness_days":  90
+                 },
+    "warrant":  {
+                    "protected_artifacts":  [
+                                                "plan/decision-brief.json",
+                                                "plan/hypotheses.json",
+                                                "plan/evidence/manifest.jsonl",
+                                                "plan/readiness-policy.json",
+                                                "plan/mvp-charter.json",
+                                                "config/tempo.config.json"
+                                            ],
+                    "max_ttl_hours":  24
+                },
+    "schedule":  {
+                     "milestones":  [
+                                        {
+                                            "name":  "business_framing_complete",
+                                            "percent":  8
+                                        },
+                                        {
+                                            "name":  "readiness_assessment",
+                                            "percent":  12
+                                        },
+                                        {
+                                            "name":  "mvp_authorized_or_rejected",
+                                            "percent":  15
+                                        },
+                                        {
+                                            "name":  "runnable_skeleton",
+                                            "percent":  20
+                                        },
+                                        {
+                                            "name":  "happy_path",
+                                            "percent":  45
+                                        },
+                                        {
+                                            "name":  "de_mock",
+                                            "percent":  62
+                                        },
+                                        {
+                                            "name":  "coherent_product",
+                                            "percent":  70
+                                        },
+                                        {
+                                            "name":  "feature_freeze",
+                                            "percent":  76
+                                        },
+                                        {
+                                            "name":  "judge_runnable",
+                                            "percent":  82
+                                        },
+                                        {
+                                            "name":  "submission_filed",
+                                            "percent":  95
+                                        }
+                                    ]
+                 },
+    "guards":  {
+                   "freeze_allow":  [
+                                        "docs/**",
+                                        "demo/**",
+                                        "submission/**",
+                                        "samples/**",
+                                        "README.md",
+                                        ".tempo/receipts/**",
+                                        "src/tempo/warrant.py",
+                                        "src/tempo/guards.py",
+                                        "src/tempo/demo.py",
+                                        "src/tempo/selfcheck.py",
+                                        "src/tempo/state.py",
+                                        "src/tempo/ledger.py",
+                                        "src/tempo/schema.py",
+                                        "src/tempo/config.py",
+                                        "src/tempo/verify.py",
+                                        "src/tempo/lease.py",
+                                        "src/tempo/subject.py",
+                                        "src/tempo/transaction.py",
+                                        "src/tempo/task.py",
+                                        "tests/test_authorization.py",
+                                        "tests/test_guards.py",
+                                        "tests/test_conformance.py",
+                                        "tests/test_ledger.py",
+                                        "tests/test_verify.py",
+                                        "tests/test_stabilization.py",
+                                        "schemas/ledger-event.schema.json",
+                                        "schemas/authorization-warrant.schema.json",
+                                        "schemas/receipt.schema.json",
+                                        "schemas/build-lease.schema.json",
+                                        "schemas/task.schema.json",
+                                        "schemas/subject-repository.schema.json",
+                                        "governance/feature-freeze.json",
+                                        "tasks/T-20260719-TEMPO-STABILIZATION.json",
+                                        "MANIFEST.json",
+                                        "TRACEABILITY.md",
+                                        "SECURITY.md"
+                                    ],
+                   "credential_paths":  [
+                                            "~/.ssh",
+                                            "~/.aws",
+                                            "~/.config/gcloud",
+                                            "~/.tempo/creds",
+                                            "~/.codex/auth.json"
+                                        ],
+                   "secret_entropy_min":  4.5,
+                   "secret_keyword_min_length":  32,
+                   "post_freeze_critical_fix":  {
+                                                    "task_id":  "T-20260719-TEMPO-STABILIZATION",
+                                                    "mvp_id":  "M-TEMPO-STABILIZATION-001",
+                                                    "allowed_paths":  [
+                                                                          "src/tempo/warrant.py",
+                                                                          "src/tempo/guards.py",
+                                                                          "src/tempo/demo.py",
+                                                                          "src/tempo/selfcheck.py",
+                                                                          "src/tempo/state.py",
+                                                                          "src/tempo/ledger.py",
+                                                                          "src/tempo/schema.py",
+                                                                          "src/tempo/config.py",
+                                                                          "src/tempo/verify.py",
+                                                                          "src/tempo/lease.py",
+                                                                          "src/tempo/subject.py",
+                                                                          "src/tempo/transaction.py",
+                                                                          "src/tempo/task.py",
+                                                                          "tests/test_authorization.py",
+                                                                          "tests/test_guards.py",
+                                                                          "tests/test_conformance.py",
+                                                                          "tests/test_ledger.py",
+                                                                          "tests/test_verify.py",
+                                                                          "tests/test_stabilization.py",
+                                                                          "schemas/ledger-event.schema.json",
+                                                                          "schemas/authorization-warrant.schema.json",
+                                                                          "schemas/receipt.schema.json",
+                                                                          "schemas/build-lease.schema.json",
+                                                                          "schemas/task.schema.json",
+                                                                          "schemas/subject-repository.schema.json",
+                                                                          "governance/feature-freeze.json",
+                                                                          "tasks/T-20260719-TEMPO-STABILIZATION.json",
+                                                                          "MANIFEST.json",
+                                                                          "TRACEABILITY.md",
+                                                                          "SECURITY.md",
+                                                                          "README.md",
+                                                                          "docs/**",
+                                                                          "demo/**",
+                                                                          "samples/**"
+                                                                      ],
+                                                    "approved_by":  "human:repository-owner",
+                                                    "approved_at":  "2026-07-18T17:36:56Z",
+                                                    "signing_provenance":  "tty_human",
+                                                    "expires_at":  "2026-07-21T08:00:00Z"
+                                                }
+               },
+    "verification":  {
+                         "whole_suite_timeout_seconds":  180,
+                         "receipt_dir":  ".tempo/receipts",
+                         "container":  {
+                                           "image":  "python:3.13.14-slim-bookworm@sha256:9d7f287598e1a5a978c015ee176d8216435aaf335ed69ac3c38dd1bbb10e8d64",
+                                           "uid":  65532,
+                                           "network":  "none"
+                                       }
+                     }
 }

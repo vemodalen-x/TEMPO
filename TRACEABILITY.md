@@ -13,7 +13,8 @@ run the listed command and inspect the generated receipt or exit code.
 | One rank-1 falsifiable hypothesis | Hypothesis schema and hard blockers | hypotheses schema, readiness evaluator | Readiness conformance tests |
 | Rank-1 threshold actually reached | Typed evidence measurements plus declared aggregation/operator/target | `src/tempo/readiness.py`, hypotheses/evidence/assessment schemas | Threshold pass/fail readiness tests and demo report |
 | Cheaper experiment before MVP | Decision brief and hard blocker | readiness evaluator | Demo reports `CHEAPER_SUFFICIENT_EXPERIMENT` when present |
-| Human authority is separate | ADR 0001 and warrant schema | `src/tempo/warrant.py` | Start-before-warrant demo step exits `2` |
+| Human authority is separate | ADR 0001 and warrant schema | `src/tempo/warrant.py` | Authorization reports `build_allowed: false`; start-before-warrant demo step exits `2` |
+| Start-bound implementation authority | Build-lease and task schemas | `src/tempo/warrant.py`, `src/tempo/guards.py`, `src/tempo/subject.py` | Stabilization tests require exactly one actor/session/task/repository-bound `mvp_started` receipt |
 | Scope, budget, deadline, drift | Hash-bound warrant and task record | warrant validator and start gate | Warrant conformance tests and demo drift step |
 | Tamper-evident local history | Ledger-event schema, serialized append, durable head checkpoint | `src/tempo/ledger.py` | Ledger truncation/concurrency tests; `python bin/tempo --json ledger verify` |
 | Secret, credential, destructive, freeze guards | Repository policy | `src/tempo/guards.py`, hook adapter | Guard regression tests |

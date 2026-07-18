@@ -1,0 +1,90 @@
+{
+  "business_model_id": "BM-TEMPO-STABILIZATION-001",
+  "version": 1,
+  "opportunity_ref": "O-TEMPO-STABILIZATION-001",
+  "state": "validating",
+  "value_proposition": "Provide repository owners with a fail-closed, start-bound implementation lease whose authority and recovery behavior can be independently verified.",
+  "target_segment": "Maintainers and product owners using TEMPO to supervise coding-agent implementation",
+  "target_user": {
+    "description": "A repository owner or reviewer who needs a clear answer to whether an implementation write is currently authorized.",
+    "value_or_need": "One consistent status and receipt contract across authorization, start, guard, failure, restart, and revocation."
+  },
+  "economic_buyer": {
+    "description": "The team accountable for security incidents, audit ambiguity, and agent rework.",
+    "value_or_need": "Lower review and incident-recovery cost from deterministic fail-closed lifecycle behavior."
+  },
+  "willingness_to_pay_or_internal_roi_hypothesis": "A team will continue using TEMPO when stronger lease guarantees remove product-specific wrapper checks without increasing normal setup materially.",
+  "revenue_or_economic_value_model": "Value comes from avoiding unauthorized implementation, manual state repair, duplicated downstream guard logic, and ambiguous code-review evidence.",
+  "acquisition_distribution_hypothesis": "The fix will reach existing users through a small upstream pull request, release notes, and the unchanged TEMPO CLI rather than a separate coupled package.",
+  "adoption_friction": [
+    "Existing tests and scripts that treat authorization as equivalent to start must be updated",
+    "A current human warrant is still required for implementation",
+    "Repository identity binding introduces explicit migration data"
+  ],
+  "key_partners_or_dependencies": [
+    "Python standard library",
+    "Existing TEMPO schemas and ledger verifier",
+    "GitHub Actions host matrix",
+    "Independent Understand Video dogfood consumer"
+  ],
+  "rough_cost_drivers": [
+    {
+      "driver": "Regression engineering",
+      "basis": "Three focused implementation and verification cycles across lifecycle and guards",
+      "uncertainty": "medium"
+    },
+    {
+      "driver": "Compatibility review",
+      "basis": "Migration of tests and demo expectations from authorized to started build authority",
+      "uncertainty": "medium"
+    }
+  ],
+  "alternatives_and_differentiation": [
+    {
+      "alternative": "Product-specific duplicate guards",
+      "differentiation": "The upstream framework remains the single authority source and products consume only receipts."
+    },
+    {
+      "alternative": "Manual cleanup after failed start",
+      "differentiation": "Failure-atomic lifecycle operations eliminate authoritative split state instead of documenting repair steps."
+    },
+    {
+      "alternative": "Treat a warrant as immediate build permission",
+      "differentiation": "A unique committed start becomes a distinct lease boundary with task and repository identity."
+    }
+  ],
+  "defensibility_hypothesis": "The durable value is a small deterministic kernel with hash-bound evidence, explicit human authority, and machine-verifiable lifecycle receipts rather than policy prose alone.",
+  "material_risks": [
+    {
+      "risk_id": "BR-TEMPO-STAB-001",
+      "category": "security",
+      "description": "A compatibility shortcut could preserve an authorization-only bypass.",
+      "resolution_status": "mitigated"
+    },
+    {
+      "risk_id": "BR-TEMPO-STAB-002",
+      "category": "operational",
+      "description": "A failed lifecycle command could leave state, active, and ledger inconsistent.",
+      "resolution_status": "mitigated"
+    },
+    {
+      "risk_id": "BR-TEMPO-STAB-003",
+      "category": "technical",
+      "description": "Repository binding could break portable fixture and demo workspaces.",
+      "resolution_status": "mitigated"
+    }
+  ],
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001",
+    "H-TEMPO-COMPAT-001"
+  ],
+  "evidence_refs": [
+    "E-TEMPO-OWNER-REQUEST-001",
+    "E-TEMPO-SIGNING-UX-001",
+    "E-TEMPO-P0-REPRO-001",
+    "E-TEMPO-FROZEN-BASELINE-001"
+  ],
+  "owner": "human:repository-owner",
+  "created_at": "2026-07-18T16:55:00Z",
+  "updated_at": "2026-07-18T16:55:00Z"
+}

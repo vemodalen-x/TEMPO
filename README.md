@@ -135,13 +135,14 @@ verification, and submission checks.
 ## Read the result
 
 Human-readable commands use one order throughout:
-**Outcome → Why → Evidence → Next action**. The two states that matter most are
+**Outcome -> Why -> Evidence -> Next action**. The two states that matter most are
 kept separate:
 
 - `MVP_AUTHORIZED` from readiness means *eligible for a human authorization
   decision*.
 - `build_allowed: true` appears only after an independently valid warrant and
-  start-gate check.
+  exactly one matching `mvp_started` receipt bound to the active task, actor,
+  session, lane, action, and repository workspace.
 
 Generated artifacts live under `plan/`; the append-only ledger API, durable
 head checkpoint, and receipts live under `.tempo/`. The checkpoint detects a

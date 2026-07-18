@@ -1,0 +1,42 @@
+{
+  "task_id": "T-20260719-TEMPO-STABILIZATION",
+  "title": "Three-cycle TEMPO critical stabilization",
+  "state": "proposed",
+  "risk": "R2",
+  "demo_tier": "D0",
+  "owner": "human:repository-owner",
+  "lane": "critical-stabilization",
+  "scope_in": [
+    "src/tempo/**",
+    "tests/**",
+    "schemas/**",
+    "config/tempo.config.json",
+    "docs/**",
+    "samples/**",
+    "demo/**",
+    "README.md",
+    "TRACEABILITY.md",
+    "SECURITY.md",
+    "MANIFEST.json",
+    "governance/feature-freeze.json",
+    "tasks/T-20260719-TEMPO-STABILIZATION.json"
+  ],
+  "scope_out": [
+    "authorization bypasses",
+    "signed-history edits",
+    "Understand Video implementation",
+    "deployment or publication",
+    "video upload or Devpost submission"
+  ],
+  "opportunity_ref": "O-TEMPO-STABILIZATION-001",
+  "charter_ref": "M-TEMPO-STABILIZATION-001",
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001",
+    "H-TEMPO-COMPAT-001"
+  ],
+  "budget": {
+    "amount": 1,
+    "currency": "USD"
+  },
+  "deadline": "2026-07-21T08:00:00Z"
+}

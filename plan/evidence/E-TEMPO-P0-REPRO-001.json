@@ -1,0 +1,51 @@
+{
+  "captured_at": "2026-07-18T16:40:00Z",
+  "claim_tested": "The current TEMPO lifecycle has two deterministic authority-integrity defects at start failure atomicity and authorization-only guard enforcement.",
+  "collector": "verifier:local-tempo-reproduction",
+  "content_hash": null,
+  "directness": "direct",
+  "evidence_id": "E-TEMPO-P0-REPRO-001",
+  "freshness": {
+    "expires_at": "2026-08-18T16:40:00Z",
+    "policy": "source_specific"
+  },
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001"
+  ],
+  "limitations": [
+    "Local integrity evidence is not an external platform attestation",
+    "The reproduction targets the pinned Windows checkout and must be repeated on the host matrix",
+    "No exploit was used against a third-party repository"
+  ],
+  "measurements": [
+    {
+      "metric": "Deterministically reproduced authority-integrity defects",
+      "unit": "defects",
+      "value": 2
+    },
+    {
+      "metric": "Partial authoritative records after rejected start",
+      "unit": "records",
+      "value": 2
+    },
+    {
+      "metric": "Authorization-only write guard decisions incorrectly allowed",
+      "unit": "decisions",
+      "value": 1
+    }
+  ],
+  "provenance": {
+    "collection_method": "Deterministic CLI and guard calls in disposable workspaces with before-and-after state, active, and ledger inspection",
+    "is_fixture": false,
+    "kind": "internal",
+    "untrusted_input": false
+  },
+  "sample_context": {
+    "description": "Disposable local workspaces at pinned TEMPO commit 4afc6a3 exercised invalid start event data and a valid warrant with no active or ledger start.",
+    "population": "TEMPO 0.1.0 warrant, start, status, and guard boundary",
+    "sample_size": 2
+  },
+  "source_reference": "experiment://local/tempo-authority-boundary-reproduction/2026-07-19",
+  "source_type": "experiment_result",
+  "stance": "supports"
+}

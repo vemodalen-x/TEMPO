@@ -1,0 +1,80 @@
+{
+  "hypothesis_set_id": "HS-TEMPO-STABILIZATION-001",
+  "version": 1,
+  "opportunity_ref": "O-TEMPO-STABILIZATION-001",
+  "owner": "human:repository-owner",
+  "review_at": "2026-07-21T08:00:00Z",
+  "hypotheses": [
+    {
+      "hypothesis_id": "H-TEMPO-BOUNDARY-001",
+      "rank": 1,
+      "type": "security",
+      "statement": "A repository owner dogfooding TEMPO needs the observed authority-integrity failures fixed through three framework-first stabilization cycles.",
+      "why_it_matters": "A gate that authorizes writes without a committed start, or retains authoritative partial state after failure, cannot be trusted by dependent products.",
+      "falsification_condition": "The repository owner does not request the three-cycle stabilization, or the reported failures cannot be reproduced without weakening human authorization or signed-ledger invariants.",
+      "evidence_threshold": {
+        "metric": "Requested framework stabilization cycles",
+        "aggregation": "maximum",
+        "operator": ">=",
+        "target": 3,
+        "unit": "cycles",
+        "minimum_evidence_items": 1,
+        "required_source_types": [
+          "observed_user_behavior"
+        ]
+      },
+      "kill_or_pivot_trigger": {
+        "action": "pivot",
+        "condition": "A bounded fail-closed patch cannot preserve human authorization, ledger integrity, and existing exit-code contracts.",
+        "reason_code": "CRITICAL_FIX_BOUNDARY_UNSAFE"
+      },
+      "status": "supported",
+      "evidence_refs": [
+        "E-TEMPO-OWNER-REQUEST-001",
+        "E-TEMPO-P0-REPRO-001"
+      ],
+      "confidence": {
+        "score": 90,
+        "scale": "0-100",
+        "rationale": "The repository owner explicitly requested three framework-first cycles, and both defects are deterministic and localized at lifecycle write ordering and the missing committed-start condition."
+      },
+      "owner": "human:repository-owner",
+      "review_at": "2026-07-21T08:00:00Z"
+    },
+    {
+      "hypothesis_id": "H-TEMPO-COMPAT-001",
+      "rank": 2,
+      "type": "technical_feasibility",
+      "statement": "Three small iterations can preserve the existing CLI and exit-code surface while adding strict task and repository bindings.",
+      "why_it_matters": "Dependent repositories need stronger guarantees without importing or vendoring TEMPO implementation code.",
+      "falsification_condition": "The full conformance suite or credential-free demo cannot remain compatible after the stricter lease contract is introduced.",
+      "evidence_threshold": {
+        "metric": "Complete stabilization regression cycles passing",
+        "aggregation": "sum",
+        "operator": ">=",
+        "target": 3,
+        "unit": "cycles",
+        "minimum_evidence_items": 3,
+        "required_source_types": [
+          "experiment_result"
+        ]
+      },
+      "kill_or_pivot_trigger": {
+        "action": "pivot",
+        "condition": "Compatibility failures remain after three bounded regression cycles.",
+        "reason_code": "STABILIZATION_REGRESSION_PERSISTS"
+      },
+      "status": "testing",
+      "evidence_refs": [],
+      "confidence": {
+        "score": 65,
+        "scale": "0-100",
+        "rationale": "The affected boundaries are small, but the current suite institutionalizes authorization-only behavior and must be migrated carefully."
+      },
+      "owner": "human:repository-owner",
+      "review_at": "2026-07-21T08:00:00Z"
+    }
+  ],
+  "created_at": "2026-07-18T16:55:00Z",
+  "updated_at": "2026-07-18T16:55:00Z"
+}

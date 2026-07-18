@@ -65,6 +65,8 @@
     {"name": "mvp-charter", "path": "schemas/mvp-charter.schema.json", "draft": "2020-12", "status": "implemented"},
     {"name": "assessment", "path": "schemas/assessment.schema.json", "draft": "2020-12", "status": "implemented"},
     {"name": "authorization-warrant", "path": "schemas/authorization-warrant.schema.json", "draft": "2020-12", "status": "implemented"},
+    {"name": "build-lease", "path": "schemas/build-lease.schema.json", "draft": "2020-12", "status": "implemented"},
+    {"name": "task", "path": "schemas/task.schema.json", "draft": "2020-12", "status": "implemented"},
     {"name": "receipt", "path": "schemas/receipt.schema.json", "draft": "2020-12", "status": "implemented"},
     {"name": "ledger-event", "path": "schemas/ledger-event.schema.json", "draft": "2020-12", "status": "implemented"}
   ],
@@ -107,7 +109,7 @@
     {
       "mechanism": "implementation-start-gate",
       "status": "implemented",
-      "expected_paths": ["src/tempo/warrant.py", "src/tempo/cli.py"]
+      "expected_paths": ["src/tempo/warrant.py", "src/tempo/subject.py", "src/tempo/cli.py", "schemas/build-lease.schema.json", "schemas/task.schema.json"]
     },
     {
       "mechanism": "serialized-hash-chained-ledger-with-durable-head-checkpoint",

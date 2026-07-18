@@ -1,0 +1,61 @@
+{
+  "allowed_actions": [
+    "implementation_write",
+    "test",
+    "build",
+    "local_demo"
+  ],
+  "allowed_lanes": [
+    "critical-stabilization"
+  ],
+  "allowed_scope": [
+    "src/tempo/**",
+    "tests/**",
+    "schemas/**",
+    "config/tempo.config.json",
+    "docs/**",
+    "samples/**",
+    "demo/**",
+    "README.md",
+    "TRACEABILITY.md",
+    "SECURITY.md",
+    "MANIFEST.json",
+    "governance/feature-freeze.json",
+    "tasks/T-20260719-TEMPO-STABILIZATION.json"
+  ],
+  "assessment_ref": "A-9627F73EB15141D9",
+  "authorization_type": "mvp_build",
+  "budget_cap": {
+    "amount": 1,
+    "currency": "USD"
+  },
+  "deadline": "2026-07-21T08:00:00Z",
+  "demo_context_hash": null,
+  "expires_at": "2026-07-19T17:37:10Z",
+  "hash_set": {
+    "allowed_scope": "sha256:8f2728edc4af203acd324f4a0b12609f8a1e78688eae59b9076a32a729b5653e",
+    "budget": "sha256:4d3f8fe35fdf9a372e131a1997ffe62a5c1b1f1cc9a1acb01da2d5da7b0bc0c8",
+    "deadline": "sha256:3dc776c6a53e979c7f973e276aafe568de9abb5b30315dc6b5b12a071bbe63bf",
+    "evidence_manifest": "sha256:40b65c96e86e86d29043108e0e58a4e893d974df432c4d1ac19cd444ee722dbe",
+    "hypothesis_set": "sha256:59da317f4b585e1666b71920d5b94d849ac92e7ecd0b84d5539a1ee5b5a0ad8d",
+    "mvp_charter": "sha256:56378d009d863e3b25ba4d412aad969d80faba4e7b4268869a712939b734d036",
+    "readiness_policy": "sha256:7ddabe3f694f35bb12935c89f6dc150db2407c962393ecbbf714a79b773447b8",
+    "runtime_config": "sha256:32a101b3e0c46ee8854447015ea5d8d5051bb1073ae16da453931ae64466d958",
+    "signed_decision_brief": "sha256:71ce89ad1dc5be49f97a65421e5ea1af920863767dfbc3a6000fa4c1beadf320"
+  },
+  "issued_at": "2026-07-18T17:37:10Z",
+  "mvp_ref": "M-TEMPO-STABILIZATION-001",
+  "previous_warrant_ref": null,
+  "provenance_kind": "tty_human",
+  "repository_ref": "TEMPO-pr-20260718",
+  "revocation": {
+    "reason_code": null,
+    "revoked": false,
+    "revoked_at": null,
+    "revoked_by": null
+  },
+  "signer_ref": "human:repository-owner",
+  "signer_session": "tty:tempo-stabilization-20260719",
+  "state": "active",
+  "warrant_id": "W-82ADD7D0871D4FA7"
+}
