@@ -724,6 +724,11 @@ def _scope_match(path: str, patterns: list[str]) -> bool:
     return any(fnmatch.fnmatchcase(canonical, pattern) for pattern in patterns)
 
 
+def _lease_timestamp() -> str:
+    """Use sub-second precision so rapid, valid lease rotations stay unique."""
+    return utc_now().isoformat(timespec="microseconds").replace("+00:00", "Z")
+
+
 def _load_task(workspace: Workspace, task_id: str) -> dict[str, Any]:
     candidates = [workspace.path(f"tasks/{task_id}.json")]
     for path in candidates:
@@ -823,13 +828,52 @@ def _start_locked(
             workspace,
             actor=actor,
             session=session,
-            lane=lane,
-            action=action,
-            path=path,
         )
-        if lease["active"]["task_id"] != task_id or lease["active"]["path"] != canonical_relpath(path):
+        current = lease["active"]
+        requested_path = canonical_relpath(path)
+        if current["task_id"] != task_id:
             raise PolicyBlock("BUILD_LEASE_CONFLICT", "A different implementation start is already active")
-        return {"ok": True, "build_allowed": True, "idempotent": True, **lease["active"]}
+        if (
+            current["path"] == requested_path
+            and current["lane"] == lane
+            and current["action"] == action
+        ):
+            return {"ok": True, "build_allowed": True, "idempotent": True, **current}
+        active_path = workspace.path(".tempo/run/active.json")
+        rotated = {
+            "warrant_id": warrant["warrant_id"],
+            "mvp_id": warrant["mvp_ref"],
+            "task_id": task_id,
+            "path": requested_path,
+            "lane": lane,
+            "action": action,
+            "actor": actor,
+            "session": session,
+            "started_at": _lease_timestamp(),
+        }
+        try:
+            atomic_write_json(active_path, rotated)
+            Ledger(workspace).append(
+                "mvp_started",
+                actor=actor,
+                session=session,
+                relevant_ids={"warrant_id": warrant["warrant_id"], "mvp_id": warrant["mvp_ref"], "task_id": task_id},
+                artifact_hashes={"plan/authorization-warrant.json": sha256_file(workspace.path("plan/authorization-warrant.json"))},
+                evidence_refs=charter["evidence_baseline"]["evidence_refs"],
+                reason_code="BUILD_LEASE_ROTATED",
+                resulting_state="BUILDING",
+                details={
+                    "path": rotated["path"],
+                    "lane": lane,
+                    "action": action,
+                    "started_at": rotated["started_at"],
+                    "supersedes_start_event_id": lease["start_event"]["event_id"],
+                },
+            )
+        except Exception:
+            atomic_write_json(active_path, current)
+            raise
+        return {"ok": True, "build_allowed": True, "idempotent": False, "rotated": True, **rotated}
     if state["mvp"]["state"] != "AUTHORIZED":
         raise PolicyBlock("MVP_START_STATE_INVALID", "Implementation start requires AUTHORIZED state")
     active_path = workspace.path(".tempo/run/active.json")
@@ -844,7 +888,7 @@ def _start_locked(
         "action": action,
         "actor": actor,
         "session": session,
-        "started_at": isoformat_z(),
+        "started_at": _lease_timestamp(),
     }
     try:
         store.transition("mvp", "BUILDING", "VALID_WARRANT_AND_TASK")
@@ -858,7 +902,7 @@ def _start_locked(
             evidence_refs=charter["evidence_baseline"]["evidence_refs"],
             reason_code="VALID_WARRANT_AND_SCOPE",
             resulting_state="BUILDING",
-            details={"path": active["path"], "lane": lane, "action": action},
+            details={"path": active["path"], "lane": lane, "action": action, "started_at": active["started_at"]},
         )
     except Exception:
         atomic_write_json(store.path, state)
@@ -938,7 +982,7 @@ def validate_build_lease(
             raise PolicyBlock("SCOPE_NOT_AUTHORIZED", f"Path is outside warrant scope: {requested}")
         if not _scope_match(requested, task["scope_in"]):
             raise PolicyBlock("TASK_SCOPE_VIOLATION", f"Path is outside task scope: {requested}")
-    matches = [
+    lease_events = [
         event
         for event in Ledger(workspace).events()
         if event.get("event_type") == "mvp_started"
@@ -947,15 +991,29 @@ def validate_build_lease(
         and event.get("relevant_ids", {}).get("warrant_id") == active["warrant_id"]
         and event.get("relevant_ids", {}).get("mvp_id") == active["mvp_id"]
         and event.get("relevant_ids", {}).get("task_id") == active["task_id"]
+    ]
+    modern_matches = [
+        event
+        for event in lease_events
+        if event.get("details", {}).get("path") == active["path"]
+        and event.get("details", {}).get("lane") == active["lane"]
+        and event.get("details", {}).get("action") == active["action"]
+        and event.get("details", {}).get("started_at") == active["started_at"]
+    ]
+    legacy_matches = [
+        event
+        for event in lease_events
+        if "started_at" not in event.get("details", {})
         and event.get("details", {}).get("path") == active["path"]
         and event.get("details", {}).get("lane") == active["lane"]
         and event.get("details", {}).get("action") == active["action"]
     ]
-    if len(matches) != 1:
+    matches = modern_matches or legacy_matches
+    if len(matches) != 1 or not lease_events or lease_events[-1].get("event_id") != matches[0].get("event_id"):
         raise PolicyBlock(
             "BUILD_START_RECEIPT_INVALID",
-            "Active lease requires exactly one matching mvp_started ledger event",
-            details={"matching_events": len(matches)},
+            "Active lease requires one unique latest mvp_started ledger event",
+            details={"matching_events": len(matches), "lease_events": len(lease_events)},
         )
     return {**warrant, "active": deepcopy(active), "start_event": deepcopy(matches[0])}
 
