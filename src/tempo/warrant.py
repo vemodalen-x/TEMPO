@@ -16,6 +16,7 @@ from .errors import CheckerFailure, PolicyBlock, TempoError
 from .ledger import Ledger, _FileLock
 from .schema import validate_data
 from .state import StateStore
+from .subject import repository_ref, validate_repository_ref
 from .util import (
     Workspace,
     atomic_write_json,
@@ -352,7 +353,7 @@ def _authorize_locked(
         "warrant_id": f"W-{uuid.uuid4().hex[:16].upper()}",
         "mvp_ref": charter["mvp_id"],
         "assessment_ref": assessment["assessment_id"],
-        "repository_ref": workspace.root.name,
+        "repository_ref": repository_ref(workspace),
         "state": "active",
         "signer_ref": signer_ref,
         "signer_session": signer_session,
@@ -551,6 +552,11 @@ def validate_warrant(
         raise PolicyBlock("WARRANT_MISSING", "No MVP authorization warrant exists")
     warrant = load_json(path)
     validate_data(workspace, "authorization-warrant", warrant, policy_block=False)
+    if not validate_repository_ref(workspace, warrant["repository_ref"]):
+        raise PolicyBlock(
+            "SUBJECT_REPOSITORY_MISMATCH",
+            "The warrant belongs to a different repository workspace",
+        )
     ledger = Ledger(workspace)
     ledger.verify()
     events = ledger.events()
@@ -726,6 +732,7 @@ def _load_task(workspace: Workspace, task_id: str) -> dict[str, Any]:
             if not isinstance(task, dict):
                 break
             _validate_task(task, expected_task_id=task_id)
+            validate_data(workspace, "task", task)
             return task
     raise PolicyBlock("TASK_NOT_FOUND", f"Task record not found: {task_id}")
 
@@ -901,6 +908,7 @@ def validate_build_lease(
     if not active_path.is_file():
         raise PolicyBlock("BUILD_LEASE_MISSING", "BUILDING state has no active implementation lease")
     active = load_json(active_path)
+    validate_data(workspace, "build-lease", active)
     required = {"warrant_id", "mvp_id", "task_id", "path", "lane", "action", "actor", "session", "started_at"}
     if not isinstance(active, dict) or set(active) != required:
         raise PolicyBlock("BUILD_LEASE_INVALID", "Active implementation lease violates its strict contract")
