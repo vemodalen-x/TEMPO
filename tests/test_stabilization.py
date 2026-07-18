@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from tests import support as _support  # installs src/ on sys.path
 from tests.support import SESSION, WorkspaceCase, read_json, write_json
 
@@ -82,7 +84,48 @@ class StabilizationContractTests(WorkspaceCase):
         )
 
         error = self.assert_policy_code("BUILD_START_RECEIPT_INVALID", validate_build_lease, self.workspace)
-        self.assertEqual(error.details["matching_events"], 2)
+        self.assertEqual(error.details["matching_events"], 1)
+        self.assertEqual(error.details["lease_events"], 2)
+
+    def test_same_owner_can_rotate_and_revisit_paths_with_unique_receipts(self) -> None:
+        first = self.start_build()
+        second = start(
+            self.workspace,
+            task_id="T-TEST-001",
+            path="src/tempo/other.py",
+            lane="core",
+            action="implementation_write",
+            actor="agent:builder",
+            session=SESSION,
+        )
+        self.assertTrue(second["rotated"])
+        self.assertFalse(second["idempotent"])
+        self.assertEqual(second["path"], "src/tempo/other.py")
+        self.assertEqual(validate_build_lease(self.workspace, path=second["path"])["active"]["path"], second["path"])
+
+        third = self.start_build()
+        self.assertTrue(third["rotated"])
+        self.assertEqual(third["path"], first["path"])
+        current = validate_build_lease(self.workspace, path=first["path"])
+        self.assertEqual(current["start_event"]["details"]["started_at"], third["started_at"])
+        self.assertEqual(len([event for event in Ledger(self.workspace).events() if event["event_type"] == "mvp_started"]), 3)
+
+    def test_failed_rotation_restores_the_previous_active_lease(self) -> None:
+        first = self.start_build()
+        with patch("tempo.warrant.Ledger.append", side_effect=OSError("simulated ledger failure")):
+            with self.assertRaises(OSError):
+                start(
+                    self.workspace,
+                    task_id="T-TEST-001",
+                    path="src/tempo/other.py",
+                    lane="core",
+                    action="implementation_write",
+                    actor="agent:builder",
+                    session=SESSION,
+                )
+
+        self.assertEqual(read_json(self.root / ".tempo/run/active.json")["path"], first["path"])
+        self.assertEqual(validate_build_lease(self.workspace)["active"]["path"], first["path"])
 
     def test_guard_rejects_session_that_does_not_own_active_lease(self) -> None:
         self.start_build()
