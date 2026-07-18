@@ -23,7 +23,7 @@ from .util import (
     sha256_file,
     utc_now,
 )
-from .warrant import authorize, initialize_demo_context, start, validate_warrant
+from .warrant import authorize, initialize_demo_context, start, validate_build_lease, validate_warrant
 
 
 DEMO_ACTOR = "agent:demo-runner"
@@ -230,12 +230,12 @@ def run_demo(source: Workspace, *, session: str = "local:judge-demo") -> dict[st
         ttl_hours=1,
         demo_fixture=True,
     )
-    if warrant["provenance_kind"] != "local_integrity_only" or not warrant["build_allowed"]:
+    if warrant["provenance_kind"] != "local_integrity_only" or warrant["build_allowed"]:
         raise CheckerFailure("DEMO_WARRANT_INVALID", "Fixture warrant provenance was not explicit")
     steps.append(
         _check(
             "bounded_warrant_issued",
-            "The isolated fixture signer issued a one-hour, local-integrity-only warrant.",
+            "The isolated fixture signer issued a one-hour warrant; build remains blocked until mvp start.",
             warrant_id=warrant["warrant_id"],
             provenance_kind=warrant["provenance_kind"],
         )
@@ -252,12 +252,21 @@ def run_demo(source: Workspace, *, session: str = "local:judge-demo") -> dict[st
     )
     if not started["build_allowed"]:
         raise CheckerFailure("DEMO_IN_SCOPE_START_FAILED", "In-scope task was not allowed")
+    lease = validate_build_lease(
+        workspace,
+        actor=DEMO_ACTOR,
+        session=demo_session,
+        lane="kernel",
+        action="implementation_write",
+        path="src/tempo/bounded_change.py",
+    )
     steps.append(
         _check(
             "in_scope_start_allowed",
             "A traced task inside the declared path and lane was allowed.",
             path=started["path"],
             lane=started["lane"],
+            start_event_id=lease["start_event"]["event_id"],
         )
     )
 

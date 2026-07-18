@@ -1,0 +1,42 @@
+{
+  "captured_at": "2026-07-18T16:45:00Z",
+  "claim_tested": "The repository owner wants TEMPO stabilized before the dependent code-video product, using three framework-first and product-second iterations.",
+  "collector": "agent:codex",
+  "content_hash": null,
+  "directness": "direct",
+  "evidence_id": "E-TEMPO-OWNER-REQUEST-001",
+  "freshness": {
+    "expires_at": "2026-08-18T16:45:00Z",
+    "policy": "source_specific"
+  },
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001",
+    "H-TEMPO-COMPAT-001"
+  ],
+  "limitations": [
+    "The chat channel is not a cryptographically attested identity source",
+    "The instruction is product-direction evidence and is not implementation authorization",
+    "One owner request does not establish broader market demand"
+  ],
+  "measurements": [
+    {
+      "metric": "Requested framework stabilization cycles",
+      "unit": "cycles",
+      "value": 3
+    }
+  ],
+  "provenance": {
+    "collection_method": "Direct human message recorded as untrusted evidence in the active Codex task",
+    "is_fixture": false,
+    "kind": "external",
+    "untrusted_input": true
+  },
+  "sample_context": {
+    "description": "One direct repository-owner instruction in the active development task.",
+    "population": "Current TEMPO and Understand Video repository owner",
+    "sample_size": 1
+  },
+  "source_reference": "conversation://codex/tempo-stabilization-request/2026-07-19",
+  "source_type": "observed_user_behavior",
+  "stance": "supports"
+}

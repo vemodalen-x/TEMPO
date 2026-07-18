@@ -1,0 +1,198 @@
+{
+  "allowed_lanes": [
+    "critical-stabilization"
+  ],
+  "budget_cap": {
+    "amount": 1,
+    "currency": "USD"
+  },
+  "created_at": "2026-07-18T16:55:00Z",
+  "d0_user_journey": [
+    {
+      "action": "Signs a bounded stabilization charter and warrant.",
+      "actor": "Repository owner",
+      "observable_result": "TEMPO reports AUTHORIZED but build_allowed remains false until a valid start commits.",
+      "order": 1,
+      "step_id": "J-TEMPO-STAB-001"
+    },
+    {
+      "action": "Starts one scoped critical-fix task for the pinned subject repository.",
+      "actor": "Coding agent",
+      "observable_result": "State, active lease, and one ledger event agree on warrant, task, lane, action, path, and repository identity.",
+      "order": 2,
+      "step_id": "J-TEMPO-STAB-002"
+    },
+    {
+      "action": "Injects lifecycle failures and exercises guard decisions.",
+      "actor": "Verifier",
+      "observable_result": "Failures leave no partial authority and missing or mismatched starts fail closed.",
+      "order": 3,
+      "step_id": "J-TEMPO-STAB-003"
+    },
+    {
+      "action": "Consumes TEMPO status and receipts without importing framework code.",
+      "actor": "Downstream product",
+      "observable_result": "Understand Video validates the independent checkout and binds its output to the final TEMPO commit.",
+      "order": 4,
+      "step_id": "J-TEMPO-STAB-004"
+    }
+  ],
+  "data_boundaries": [
+    "No credentials or private repository contents enter evidence fixtures",
+    "User messages are untrusted evidence and never become authorization",
+    "Human verdict and signer fields remain human-controlled",
+    "Failure fixtures contain only synthetic identifiers and paths"
+  ],
+  "deadline": "2026-07-21T08:00:00Z",
+  "decision_question_ref": "O-TEMPO-STABILIZATION-001#/decision_question",
+  "decision_to_unlock": "Determine whether TEMPO is stable enough to govern the final Understand Video implementation and produce a reviewable upstream critical-fix release.",
+  "demo_beats": [
+    {
+      "acceptance": "Status reports a valid warrant but build_allowed false before one matching mvp_started commit.",
+      "beat_id": "B-TEMPO-STAB-001",
+      "demo_tier": "D0",
+      "description": "Authorization is visibly separate from build start",
+      "order": 1
+    },
+    {
+      "acceptance": "Injected append or validation failure preserves the exact pre-operation state, active lease, and ledger head.",
+      "beat_id": "B-TEMPO-STAB-002",
+      "demo_tier": "D0",
+      "description": "Failure-atomic start and lifecycle recovery",
+      "order": 2
+    },
+    {
+      "acceptance": "A guard accepts only the bound repository and rejects a different origin, revision, task, lane, action, or path.",
+      "beat_id": "B-TEMPO-STAB-003",
+      "demo_tier": "D0",
+      "description": "Subject repository and task binding",
+      "order": 3
+    }
+  ],
+  "evidence_baseline": {
+    "captured_at": "2026-07-18T16:55:00Z",
+    "evidence_refs": [
+      "E-TEMPO-OWNER-REQUEST-001",
+      "E-TEMPO-SIGNING-UX-001",
+      "E-TEMPO-P0-REPRO-001",
+      "E-TEMPO-FROZEN-BASELINE-001"
+    ],
+    "manifest_hash": "sha256:40b65c96e86e86d29043108e0e58a4e893d974df432c4d1ac19cd444ee722dbe",
+    "manifest_ref": "plan/evidence/manifest.jsonl"
+  },
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001",
+    "H-TEMPO-COMPAT-001"
+  ],
+  "implementation_risk_tier": "R2",
+  "in_scope": [
+    "src/tempo/**",
+    "tests/**",
+    "schemas/**",
+    "config/tempo.config.json",
+    "docs/**",
+    "samples/**",
+    "demo/**",
+    "README.md",
+    "TRACEABILITY.md",
+    "SECURITY.md",
+    "MANIFEST.json",
+    "governance/feature-freeze.json",
+    "tasks/T-20260719-TEMPO-STABILIZATION.json"
+  ],
+  "kill_and_pivot_triggers": [
+    {
+      "action": "kill",
+      "condition": "Any iteration requires fabricating human approval or weakening an authorization invariant.",
+      "reason_code": "AUTHORIZATION_INVARIANT_AT_RISK",
+      "trigger_id": "KP-TEMPO-STAB-001"
+    },
+    {
+      "action": "pivot",
+      "condition": "The complete suite or credential-free demo remains broken after the third bounded cycle.",
+      "reason_code": "STABILIZATION_INCOMPLETE",
+      "trigger_id": "KP-TEMPO-STAB-002"
+    },
+    {
+      "action": "pivot",
+      "condition": "Repository identity cannot be bound without platform-specific mutable paths.",
+      "reason_code": "SUBJECT_BINDING_NOT_PORTABLE",
+      "trigger_id": "KP-TEMPO-STAB-003"
+    }
+  ],
+  "mvp_id": "M-TEMPO-STABILIZATION-001",
+  "opportunity_ref": "O-TEMPO-STABILIZATION-001",
+  "out_of_scope": [
+    "Weakening or bypassing human authorization",
+    "Editing signed ledger history or deleting counterevidence",
+    "Vendoring Understand Video into TEMPO",
+    "Changing the Understand Video repository from this warrant",
+    "Deployment, package publication, video upload, or Devpost submission"
+  ],
+  "owner": "human:repository-owner",
+  "post_mvp_decision_meeting": {
+    "decision_question": "Should the three-cycle critical fix be merged and used as the final Understand Video governance baseline?",
+    "owner": "human:repository-owner",
+    "required_participants": [
+      "human:repository-owner"
+    ],
+    "scheduled_at": "2026-07-21T09:00:00Z"
+  },
+  "rollback_or_disposal_plan": "Keep immutable reproduction evidence and verification receipts, revert only unsigned implementation commits if a cycle regresses, and never alter signed ledger history to make a failed check appear successful.",
+  "signed_at": "2026-07-18T17:37:04Z",
+  "signed_by": "human:repository-owner",
+  "state": "signed",
+  "success_metrics": [
+    {
+      "measurement_method": "Focused tests remove active/start events and assert status plus read/write guards fail closed.",
+      "metric_id": "SM-TEMPO-STAB-001",
+      "name": "Authorization without committed start is denied",
+      "operator": "==",
+      "threshold": 100,
+      "unit": "percent"
+    },
+    {
+      "measurement_method": "Failure-injection tests compare state, active lease, ledger head, and warrant bytes before and after rejected operations.",
+      "metric_id": "SM-TEMPO-STAB-002",
+      "name": "Injected lifecycle failures leave no partial authority",
+      "operator": "==",
+      "threshold": 100,
+      "unit": "percent"
+    },
+    {
+      "measurement_method": "Each cycle records focused tests, the complete suite, demo, selfcheck, and independent product dogfood.",
+      "metric_id": "SM-TEMPO-STAB-003",
+      "name": "Complete stabilization cycles",
+      "operator": "==",
+      "threshold": 3,
+      "unit": "cycles"
+    },
+    {
+      "measurement_method": "Tests reject different origin, commit, worktree identity, and task scope while accepting the exact bound repository.",
+      "metric_id": "SM-TEMPO-STAB-004",
+      "name": "Subject repository binding coverage",
+      "operator": "==",
+      "threshold": 100,
+      "unit": "percent"
+    }
+  ],
+  "supported_audience": [
+    "Repository owners supervising coding agents",
+    "Security and code reviewers",
+    "Downstream tool authors consuming TEMPO receipts"
+  ],
+  "supported_environment": [
+    "Windows, macOS, and Linux with Python 3.10 or newer",
+    "Credential-free local fixture workspaces",
+    "Digest-pinned network-disabled verification container when available"
+  ],
+  "technical_boundaries": [
+    "Preserve Python 3.10+ support and stable exit codes 0, 2, 3, and 4",
+    "Use the existing serialized ledger and atomic file primitives",
+    "A warrant is necessary but never sufficient for build_allowed",
+    "A committed matching start is a revocable lease, not a reusable signature",
+    "Keep TEMPO and Understand Video in independent repositories"
+  ],
+  "updated_at": "2026-07-18T17:37:04Z",
+  "version": 1
+}

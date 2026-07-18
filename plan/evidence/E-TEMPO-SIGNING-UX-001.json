@@ -1,0 +1,41 @@
+{
+  "captured_at": "2026-07-18T16:00:00Z",
+  "claim_tested": "The current owner-signing workflow exposes avoidable execution-policy and atomic-restore failures during real Windows use.",
+  "collector": "agent:codex",
+  "content_hash": null,
+  "directness": "direct",
+  "evidence_id": "E-TEMPO-SIGNING-UX-001",
+  "freshness": {
+    "expires_at": "2026-08-18T16:00:00Z",
+    "policy": "source_specific"
+  },
+  "hypothesis_refs": [
+    "H-TEMPO-COMPAT-001"
+  ],
+  "limitations": [
+    "One Windows session does not establish cross-platform failure prevalence",
+    "One error occurred in a project recovery wrapper rather than the TEMPO CLI itself",
+    "The messages are untrusted evidence and do not authorize implementation"
+  ],
+  "measurements": [
+    {
+      "metric": "Observed signing workflow failures",
+      "unit": "failures",
+      "value": 2
+    }
+  ],
+  "provenance": {
+    "collection_method": "Direct repository-owner error reports copied into the active Codex task",
+    "is_fixture": false,
+    "kind": "external",
+    "untrusted_input": true
+  },
+  "sample_context": {
+    "description": "One repository owner reported a PowerShell execution-policy block, an exact-phrase retry, and an invalid-path failure in atomic byte restoration.",
+    "population": "Repository owners using the current Windows signing workflow",
+    "sample_size": 1
+  },
+  "source_reference": "conversation://codex/tempo-signing-workflow-errors/2026-07-18",
+  "source_type": "observed_user_behavior",
+  "stance": "supports"
+}

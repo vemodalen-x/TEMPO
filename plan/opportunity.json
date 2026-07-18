@@ -1,0 +1,58 @@
+{
+  "opportunity_id": "O-TEMPO-STABILIZATION-001",
+  "version": 1,
+  "state": "VALIDATING",
+  "decision_question": "Can three bounded critical-fix iterations make TEMPO implementation authority failure-atomic, start-bound, repository-bound, and regression-tested without weakening human authorization?",
+  "decision_owner": "human:repository-owner",
+  "decision_at": "2026-07-21T08:00:00Z",
+  "initiating_context": "Dogfooding TEMPO while building Understand Video exposed a split-state start failure and an authorization-only write path. The repository owner requested three framework-first stabilization rounds before the dependent product is finalized.",
+  "target_user": {
+    "segment": "Repository owners supervising coding agents with TEMPO",
+    "description": "Maintainers who rely on TEMPO to distinguish business readiness, human authorization, and a committed bounded implementation start.",
+    "usage_context": "Before an agent writes implementation files and while reviewers inspect machine receipts after failures or restarts."
+  },
+  "economic_buyer": {
+    "same_as_target_user": true,
+    "description": "The repository owner bears the security and review cost of an authority bypass or ambiguous audit record.",
+    "value_recipient": "The owner and implementing team receive a fail-closed, inspectable build lease and reproducible recovery behavior."
+  },
+  "job_to_be_done": "Ensure that implementation writes are allowed only after one matching, committed mvp_started event and that failed lifecycle operations leave no authoritative partial state.",
+  "observed_problem": "The current implementation mutates active/state before appending mvp_started, and status plus guards can treat a warrant as build authority before a committed start exists.",
+  "current_alternatives": [
+    "Rely on authorization alone and manually check whether start completed",
+    "Clean up partial state by hand after a failed command",
+    "Wrap TEMPO with product-specific checks",
+    "Stop using the framework gate for development"
+  ],
+  "expected_value": "A stable framework contract that independent products can consume without duplicating lifecycle checks or coupling their code to TEMPO internals.",
+  "strategic_context": "This is a post-freeze critical release fix. The work must preserve separate human authorization, signed history, exit-code semantics, and repository independence while adding regression evidence for three iterations.",
+  "constraints": [
+    {
+      "constraint_id": "C-TEMPO-STAB-001",
+      "type": "security",
+      "description": "No change may weaken a gate, fabricate human approval, rewrite signed history, or convert an absent start into build authority."
+    },
+    {
+      "constraint_id": "C-TEMPO-STAB-002",
+      "type": "technical",
+      "description": "Lifecycle writes must be failure-atomic and guards must bind state, active lease, ledger event, warrant, task, lane, action, path, and subject repository."
+    },
+    {
+      "constraint_id": "C-TEMPO-STAB-003",
+      "type": "operational",
+      "description": "Exactly three evidence-driven framework iterations precede their matching Understand Video product iterations."
+    },
+    {
+      "constraint_id": "C-TEMPO-STAB-004",
+      "type": "deadline",
+      "description": "The stabilization and dependent Devpost delivery review must finish before the Build Week submission deadline."
+    },
+    {
+      "constraint_id": "C-TEMPO-STAB-005",
+      "type": "budget",
+      "description": "The framework stabilization has a zero-dollar external-service budget."
+    }
+  ],
+  "created_at": "2026-07-18T16:55:00Z",
+  "updated_at": "2026-07-18T16:55:00Z"
+}

@@ -27,6 +27,7 @@ CONFIG_CONSUMERS: dict[str, str] = {
     "guards.credential_paths": "tempo.guards.evaluate_event",
     "guards.secret_entropy_min": "tempo.guards.evaluate_event",
     "guards.secret_keyword_min_length": "tempo.guards.evaluate_event",
+    "guards.post_freeze_critical_fix": "tempo.guards.evaluate_event",
     "verification.whole_suite_timeout_seconds": "tempo.verify.run_verification",
     "verification.receipt_dir": "tempo.verify.run_verification",
     "verification.container.image": "tempo.verify.readme_literal_plan",

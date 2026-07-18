@@ -6,6 +6,7 @@ from datetime import timedelta
 import fnmatch
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any, TextIO
 import uuid
@@ -15,6 +16,7 @@ from .errors import CheckerFailure, PolicyBlock, TempoError
 from .ledger import Ledger, _FileLock
 from .schema import validate_data
 from .state import StateStore
+from .subject import repository_ref, validate_repository_ref
 from .util import (
     Workspace,
     atomic_write_json,
@@ -351,7 +353,7 @@ def _authorize_locked(
         "warrant_id": f"W-{uuid.uuid4().hex[:16].upper()}",
         "mvp_ref": charter["mvp_id"],
         "assessment_ref": assessment["assessment_id"],
-        "repository_ref": workspace.root.name,
+        "repository_ref": repository_ref(workspace),
         "state": "active",
         "signer_ref": signer_ref,
         "signer_session": signer_session,
@@ -413,7 +415,7 @@ def _authorize_locked(
         "scope": warrant["allowed_scope"],
         "provenance_kind": warrant["provenance_kind"],
         "warrant_hash": digest,
-        "build_allowed": True,
+        "build_allowed": False,
     }
 
 
@@ -550,6 +552,11 @@ def validate_warrant(
         raise PolicyBlock("WARRANT_MISSING", "No MVP authorization warrant exists")
     warrant = load_json(path)
     validate_data(workspace, "authorization-warrant", warrant, policy_block=False)
+    if not validate_repository_ref(workspace, warrant["repository_ref"]):
+        raise PolicyBlock(
+            "SUBJECT_REPOSITORY_MISMATCH",
+            "The warrant belongs to a different repository workspace",
+        )
     ledger = Ledger(workspace)
     ledger.verify()
     events = ledger.events()
@@ -724,8 +731,42 @@ def _load_task(workspace: Workspace, task_id: str) -> dict[str, Any]:
             task = load_json(path)
             if not isinstance(task, dict):
                 break
+            _validate_task(task, expected_task_id=task_id)
+            validate_data(workspace, "task", task)
             return task
     raise PolicyBlock("TASK_NOT_FOUND", f"Task record not found: {task_id}")
+
+
+_TASK_ID = re.compile(r"^T-[A-Z0-9][A-Z0-9._-]{2,127}$")
+_REFERENCE_ID = re.compile(r"^[A-Z][A-Z0-9]{0,7}-[A-Z0-9][A-Z0-9._-]{2,127}$")
+
+
+def _validate_task(task: dict[str, Any], *, expected_task_id: str) -> None:
+    task_id = task.get("task_id")
+    if not isinstance(task_id, str) or not _TASK_ID.fullmatch(task_id):
+        raise PolicyBlock("TASK_INVALID", "Task id violates the stable reference contract")
+    if task_id != expected_task_id:
+        raise PolicyBlock("TASK_ID_MISMATCH", "Task filename and task_id do not match")
+    if not isinstance(task.get("lane"), str) or not task["lane"].strip():
+        raise PolicyBlock("TASK_INVALID", "Task lane must be a non-empty string")
+    for field in ("scope_in", "scope_out"):
+        patterns = task.get(field)
+        if not isinstance(patterns, list) or (field == "scope_in" and not patterns):
+            raise PolicyBlock("TASK_INVALID", f"Task {field} must be a valid path-pattern list")
+        for pattern in patterns:
+            if not isinstance(pattern, str):
+                raise PolicyBlock("TASK_INVALID", f"Task {field} contains a non-string pattern")
+            canonical_relpath(pattern)
+    references = task.get("hypothesis_refs")
+    if not isinstance(references, list) or not references:
+        raise PolicyBlock("TASK_INVALID", "Task hypothesis_refs must be a non-empty list")
+    for field, values in (
+        ("hypothesis_refs", references),
+        ("charter_ref", [task.get("charter_ref")]),
+        ("opportunity_ref", [task.get("opportunity_ref")]),
+    ):
+        if any(not isinstance(value, str) or not _REFERENCE_ID.fullmatch(value) for value in values):
+            raise PolicyBlock("TASK_INVALID", f"Task {field} violates the stable reference contract")
 
 
 def _validate_traceability(
@@ -775,9 +816,25 @@ def _start_locked(
         raise PolicyBlock("TASK_LANE_MISMATCH", "Task lane does not match requested lane")
     if not _scope_match(path, task.get("scope_in", [])):
         raise PolicyBlock("TASK_SCOPE_VIOLATION", f"Path is outside task scope: {path}")
-    state = StateStore(workspace).initialize()
-    if state["mvp"]["state"] == "AUTHORIZED":
-        StateStore(workspace).transition("mvp", "BUILDING", "VALID_WARRANT_AND_TASK")
+    store = StateStore(workspace)
+    state = store.initialize()
+    if state["mvp"]["state"] == "BUILDING":
+        lease = validate_build_lease(
+            workspace,
+            actor=actor,
+            session=session,
+            lane=lane,
+            action=action,
+            path=path,
+        )
+        if lease["active"]["task_id"] != task_id or lease["active"]["path"] != canonical_relpath(path):
+            raise PolicyBlock("BUILD_LEASE_CONFLICT", "A different implementation start is already active")
+        return {"ok": True, "build_allowed": True, "idempotent": True, **lease["active"]}
+    if state["mvp"]["state"] != "AUTHORIZED":
+        raise PolicyBlock("MVP_START_STATE_INVALID", "Implementation start requires AUTHORIZED state")
+    active_path = workspace.path(".tempo/run/active.json")
+    if active_path.exists():
+        raise PolicyBlock("BUILD_LEASE_CONFLICT", "An active implementation lease already exists")
     active = {
         "warrant_id": warrant["warrant_id"],
         "mvp_id": warrant["mvp_ref"],
@@ -789,19 +846,25 @@ def _start_locked(
         "session": session,
         "started_at": isoformat_z(),
     }
-    atomic_write_json(workspace.path(".tempo/run/active.json"), active)
-    Ledger(workspace).append(
-        "mvp_started",
-        actor=actor,
-        session=session,
-        relevant_ids={"warrant_id": warrant["warrant_id"], "mvp_id": warrant["mvp_ref"], "task_id": task_id},
-        artifact_hashes={"plan/authorization-warrant.json": sha256_file(workspace.path("plan/authorization-warrant.json"))},
-        evidence_refs=charter["evidence_baseline"]["evidence_refs"],
-        reason_code="VALID_WARRANT_AND_SCOPE",
-        resulting_state="BUILDING",
-        details={"path": active["path"], "lane": lane, "action": action},
-    )
-    return {"ok": True, "build_allowed": True, **active}
+    try:
+        store.transition("mvp", "BUILDING", "VALID_WARRANT_AND_TASK")
+        atomic_write_json(active_path, active)
+        Ledger(workspace).append(
+            "mvp_started",
+            actor=actor,
+            session=session,
+            relevant_ids={"warrant_id": warrant["warrant_id"], "mvp_id": warrant["mvp_ref"], "task_id": task_id},
+            artifact_hashes={"plan/authorization-warrant.json": sha256_file(workspace.path("plan/authorization-warrant.json"))},
+            evidence_refs=charter["evidence_baseline"]["evidence_refs"],
+            reason_code="VALID_WARRANT_AND_SCOPE",
+            resulting_state="BUILDING",
+            details={"path": active["path"], "lane": lane, "action": action},
+        )
+    except Exception:
+        atomic_write_json(store.path, state)
+        active_path.unlink(missing_ok=True)
+        raise
+    return {"ok": True, "build_allowed": True, "idempotent": False, **active}
 
 
 def start(
@@ -827,19 +890,95 @@ def start(
         )
 
 
+def validate_build_lease(
+    workspace: Workspace,
+    *,
+    actor: str | None = None,
+    session: str | None = None,
+    lane: str | None = None,
+    action: str | None = None,
+    path: str | None = None,
+) -> dict[str, Any]:
+    """Require one current start receipt bound to the active warrant and task."""
+    warrant = validate_warrant(workspace, actor=actor or "kernel:lease", session=session or "lease:validation")
+    state = StateStore(workspace).initialize()
+    if state["mvp"]["state"] != "BUILDING":
+        raise PolicyBlock("MVP_START_REQUIRED", "A valid warrant must be followed by an exact mvp start")
+    active_path = workspace.path(".tempo/run/active.json")
+    if not active_path.is_file():
+        raise PolicyBlock("BUILD_LEASE_MISSING", "BUILDING state has no active implementation lease")
+    active = load_json(active_path)
+    validate_data(workspace, "build-lease", active)
+    required = {"warrant_id", "mvp_id", "task_id", "path", "lane", "action", "actor", "session", "started_at"}
+    if not isinstance(active, dict) or set(active) != required:
+        raise PolicyBlock("BUILD_LEASE_INVALID", "Active implementation lease violates its strict contract")
+    canonical_active_path = canonical_relpath(active.get("path", ""))
+    if (
+        active.get("warrant_id") != warrant["warrant_id"]
+        or active.get("mvp_id") != warrant["mvp_ref"]
+        or active.get("path") != canonical_active_path
+    ):
+        raise PolicyBlock("BUILD_LEASE_MISMATCH", "Active lease is not bound to the current warrant")
+    if actor is not None and active.get("actor") != actor:
+        raise PolicyBlock("BUILD_LEASE_ACTOR_MISMATCH", "Implementation actor does not own the active lease")
+    if session is not None and active.get("session") != session:
+        raise PolicyBlock("BUILD_LEASE_SESSION_MISMATCH", "Implementation session does not own the active lease")
+    if lane is not None and active.get("lane") != lane:
+        raise PolicyBlock("BUILD_LEASE_LANE_MISMATCH", "Implementation lane differs from the active lease")
+    if action is not None and active.get("action") != action:
+        raise PolicyBlock("BUILD_LEASE_ACTION_MISMATCH", "Implementation action differs from the active lease")
+    task = _load_task(workspace, active["task_id"])
+    if task.get("lane") != active["lane"]:
+        raise PolicyBlock("BUILD_LEASE_TASK_MISMATCH", "Active lease lane differs from its task")
+    if not _scope_match(active["path"], task["scope_in"]):
+        raise PolicyBlock("BUILD_LEASE_TASK_MISMATCH", "Active lease path is outside its task")
+    if path is not None:
+        requested = canonical_relpath(path)
+        if not _scope_match(requested, warrant["allowed_scope"]):
+            raise PolicyBlock("SCOPE_NOT_AUTHORIZED", f"Path is outside warrant scope: {requested}")
+        if not _scope_match(requested, task["scope_in"]):
+            raise PolicyBlock("TASK_SCOPE_VIOLATION", f"Path is outside task scope: {requested}")
+    matches = [
+        event
+        for event in Ledger(workspace).events()
+        if event.get("event_type") == "mvp_started"
+        and event.get("actor") == active["actor"]
+        and event.get("session") == active["session"]
+        and event.get("relevant_ids", {}).get("warrant_id") == active["warrant_id"]
+        and event.get("relevant_ids", {}).get("mvp_id") == active["mvp_id"]
+        and event.get("relevant_ids", {}).get("task_id") == active["task_id"]
+        and event.get("details", {}).get("path") == active["path"]
+        and event.get("details", {}).get("lane") == active["lane"]
+        and event.get("details", {}).get("action") == active["action"]
+    ]
+    if len(matches) != 1:
+        raise PolicyBlock(
+            "BUILD_START_RECEIPT_INVALID",
+            "Active lease requires exactly one matching mvp_started ledger event",
+            details={"matching_events": len(matches)},
+        )
+    return {**warrant, "active": deepcopy(active), "start_event": deepcopy(matches[0])}
+
+
 def status(workspace: Workspace) -> dict[str, Any]:
     state = StateStore(workspace).initialize()
     try:
         warrant = validate_warrant(workspace)
-        return {
+        result = {
             "ok": True,
             "readiness_state": state["business"]["state"],
             "mvp_state": state["mvp"]["state"],
             "authorization_valid": True,
-            "build_allowed": state["mvp"]["state"] in {"AUTHORIZED", "BUILDING"},
+            "build_allowed": False,
             "warrant_id": warrant["warrant_id"],
             "expires_at": warrant["expires_at"],
         }
+        try:
+            validate_build_lease(workspace)
+            result["build_allowed"] = True
+        except TempoError as exc:
+            result["build_reason"] = exc.reason_code
+        return result
     except TempoError as exc:
         return {
             "ok": True,

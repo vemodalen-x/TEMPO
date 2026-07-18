@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tempo.local/schemas/build-lease.schema.json",
+  "title": "TEMPO Active Build Lease",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "warrant_id", "mvp_id", "task_id", "path", "lane", "action",
+    "actor", "session", "started_at"
+  ],
+  "properties": {
+    "warrant_id": {"type": "string", "pattern": "^W-[A-Z0-9][A-Z0-9._-]{2,63}$"},
+    "mvp_id": {"type": "string", "pattern": "^M-[A-Z0-9][A-Z0-9._-]{2,63}$"},
+    "task_id": {"type": "string", "pattern": "^T-[A-Z0-9][A-Z0-9._-]{2,127}$"},
+    "path": {"$ref": "#/$defs/path"},
+    "lane": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{1,63}$"},
+    "action": {"type": "string", "enum": ["implementation_write", "test", "build", "local_demo"]},
+    "actor": {"type": "string", "pattern": "^(?:agent|kernel|verifier):[A-Za-z0-9][A-Za-z0-9._@+:/-]{1,127}$"},
+    "session": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{2,255}$"},
+    "started_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "path": {"type": "string", "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\u0000]+$", "maxLength": 500}
+  }
+}

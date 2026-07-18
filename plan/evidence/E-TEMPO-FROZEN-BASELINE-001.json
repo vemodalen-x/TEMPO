@@ -1,0 +1,42 @@
+{
+  "captured_at": "2026-07-17T14:11:19Z",
+  "claim_tested": "The frozen TEMPO 0.1.0 baseline had a clean-clone passing suite and host-matrix CI before the newly reproduced boundary cases were added.",
+  "collector": "verifier:feature-freeze-record",
+  "content_hash": null,
+  "directness": "direct",
+  "evidence_id": "E-TEMPO-FROZEN-BASELINE-001",
+  "freshness": {
+    "expires_at": "2026-08-17T14:11:19Z",
+    "policy": "source_specific"
+  },
+  "hypothesis_refs": [
+    "H-TEMPO-BOUNDARY-001",
+    "H-TEMPO-COMPAT-001"
+  ],
+  "limitations": [
+    "A passing existing suite does not cover the newly reproduced missing-start and split-state cases",
+    "The linked CI result is inspectable but not a signed platform attestation",
+    "This evidence argues for regression caution, not for leaving the defects unfixed"
+  ],
+  "measurements": [
+    {
+      "metric": "Frozen clean-clone tests passing",
+      "unit": "tests",
+      "value": 87
+    }
+  ],
+  "provenance": {
+    "collection_method": "Read the immutable release-candidate facts recorded in governance/feature-freeze.json",
+    "is_fixture": false,
+    "kind": "internal",
+    "untrusted_input": false
+  },
+  "sample_context": {
+    "description": "The checked-in feature-freeze record for the 0.1.0 release candidate.",
+    "population": "Existing clean-clone TEMPO conformance tests",
+    "sample_size": 87
+  },
+  "source_reference": "governance/feature-freeze.json",
+  "source_type": "technical_benchmark",
+  "stance": "contradicts"
+}

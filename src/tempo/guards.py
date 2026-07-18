@@ -10,8 +10,8 @@ from typing import Any
 
 from .config import config_value, load_config
 from .errors import CheckerFailure, PolicyBlock
-from .util import Workspace, canonical_relpath, load_json
-from .warrant import validate_warrant
+from .util import Workspace, canonical_relpath, load_json, parse_datetime, utc_now
+from .warrant import validate_build_lease
 
 SECRET_PREFIX = re.compile(
     r"(ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_\-]{16,}"
@@ -120,7 +120,7 @@ def _implementation_guard(
     workspace: Workspace,
     path: str,
     event: dict[str, Any],
-) -> None:
+) -> dict[str, Any] | None:
     policy_path = path.casefold()
     if policy_path in SIGNER_OWNED_CASEFOLDED and not str(event.get("actor", "")).startswith(("human:", "platform:")):
         raise PolicyBlock(
@@ -128,12 +128,16 @@ def _implementation_guard(
             f"Only a human/signer workflow may change {path}",
         )
     if policy_path.startswith(PREAUTH_WRITE_PREFIXES_CASEFOLDED):
-        return
-    warrant = validate_warrant(
+        return None
+    lease = validate_build_lease(
         workspace,
         actor=str(event.get("actor", "agent:unknown")),
         session=str(event.get("session", "unknown")),
+        lane=str(event.get("lane", "")),
+        action=str(event.get("action", "implementation_write")),
+        path=path,
     )
+    warrant = lease
     action = str(event.get("action", "implementation_write"))
     lane = event.get("lane")
     if action not in warrant["allowed_actions"]:
@@ -142,6 +146,7 @@ def _implementation_guard(
         raise PolicyBlock("LANE_NOT_AUTHORIZED", "Implementation event must name an authorized lane")
     if not _matches(path, warrant["allowed_scope"]):
         raise PolicyBlock("SCOPE_NOT_AUTHORIZED", f"Path is outside warrant scope: {path}")
+    return lease
 
 
 def evaluate_event(workspace: Workspace, event: dict[str, Any]) -> dict[str, Any]:
@@ -156,6 +161,9 @@ def evaluate_event(workspace: Workspace, event: dict[str, Any]) -> dict[str, Any
     credential_paths = config_value(config, "guards.credential_paths", "tempo.guards.evaluate_event")
     entropy_min = float(config_value(config, "guards.secret_entropy_min", "tempo.guards.evaluate_event"))
     keyword_min = int(config_value(config, "guards.secret_keyword_min_length", "tempo.guards.evaluate_event"))
+    critical_fix = config_value(config, "guards.post_freeze_critical_fix", "tempo.guards.evaluate_event")
+    if not isinstance(critical_fix, dict):
+        raise CheckerFailure("CRITICAL_FIX_POLICY_INVALID", "Post-freeze critical-fix policy must be an object")
     tool = event["tool"]
 
     if tool in ("write_file", "edit_file"):
@@ -170,10 +178,18 @@ def evaluate_event(workspace: Workspace, event: dict[str, Any]) -> dict[str, Any
         finding = _secret_hit(content, entropy_min, keyword_min)
         if finding:
             raise PolicyBlock("SECRET_DETECTED", f"{finding} in write to {path}")
-        if _freeze_active(workspace) and not _matches(path, freeze_allow):
+        freeze_active = _freeze_active(workspace)
+        if freeze_active and not _matches(path, freeze_allow):
             raise PolicyBlock("FEATURE_FREEZE_ACTIVE", f"Path is not in the post-freeze allowlist: {path}")
         merged = {**event, "actor": event.get("actor", "agent:unknown")}
-        _implementation_guard(workspace, path, merged)
+        lease = _implementation_guard(workspace, path, merged)
+        critical_paths = critical_fix.get("allowed_paths", [])
+        if freeze_active and lease is not None and _matches(path, critical_paths):
+            if lease["active"]["task_id"] != critical_fix.get("task_id"):
+                raise PolicyBlock("CRITICAL_FIX_TASK_MISMATCH", "Active task does not own the freeze exception")
+            expires_at = critical_fix.get("expires_at")
+            if not isinstance(expires_at, str) or utc_now() >= parse_datetime(expires_at):
+                raise PolicyBlock("CRITICAL_FIX_EXCEPTION_EXPIRED", "Post-freeze critical-fix exception has expired")
         return {"ok": True, "allowed": True, "tool": tool, "path": path}
 
     if tool == "run_command":
@@ -190,12 +206,15 @@ def evaluate_event(workspace: Workspace, event: dict[str, Any]) -> dict[str, Any
         if finding:
             raise PolicyBlock("SECRET_DETECTED", f"{finding} in command")
         if event.get("phase") == "implementation":
-            warrant = validate_warrant(
+            action = str(event.get("action", "implementation_write"))
+            lease = validate_build_lease(
                 workspace,
                 actor=str(event.get("actor", "agent:unknown")),
                 session=str(event.get("session", "unknown")),
+                lane=str(event.get("lane", "")),
+                action=action,
             )
-            if event.get("action", "build") not in warrant["allowed_actions"]:
+            if action not in lease["allowed_actions"]:
                 raise PolicyBlock("ACTION_NOT_AUTHORIZED", "Implementation command is outside warrant")
         return {"ok": True, "allowed": True, "tool": tool}
 

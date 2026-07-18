@@ -18,7 +18,7 @@ from tests.support import (
 from tempo.errors import PolicyBlock
 from tempo.ledger import Ledger
 from tempo.util import parse_datetime
-from tempo.warrant import authorize, revoke, start, validate_warrant
+from tempo.warrant import authorize, revoke, start, status, validate_build_lease, validate_warrant
 
 
 class AuthorizationBoundaryTests(WorkspaceCase):
@@ -226,6 +226,12 @@ class AuthorizationBoundaryTests(WorkspaceCase):
         self.install_valid_case()
         _, authorization = self.authorize_demo()
 
+        self.assertFalse(authorization["build_allowed"])
+        before_start = status(self.workspace)
+        self.assertTrue(before_start["authorization_valid"])
+        self.assertFalse(before_start["build_allowed"])
+        self.assertEqual(before_start["build_reason"], "MVP_START_REQUIRED")
+
         result = start(
             self.workspace,
             task_id="T-TEST-001",
@@ -239,6 +245,53 @@ class AuthorizationBoundaryTests(WorkspaceCase):
         self.assertTrue(result["build_allowed"])
         self.assertEqual(result["warrant_id"], authorization["warrant_id"])
         self.assertEqual(result["path"], "src/tempo/new.py")
+        self.assertTrue(status(self.workspace)["build_allowed"])
+        self.assertEqual(validate_build_lease(self.workspace)["active"]["task_id"], "T-TEST-001")
+
+    def test_rejected_start_is_failure_atomic(self) -> None:
+        self.install_valid_case()
+        self.authorize_demo()
+        task_path = self.root / "tasks/bad-task.json"
+        payload = read_json(self.root / "tasks/T-TEST-001.json")
+        payload["task_id"] = "bad-task"
+        write_json(task_path, payload)
+
+        self.assert_policy_code(
+            "TASK_INVALID",
+            start,
+            self.workspace,
+            task_id="bad-task",
+            path="src/tempo/new.py",
+            lane="core",
+            action="implementation_write",
+            actor="agent:builder",
+            session=SESSION,
+        )
+
+        current = status(self.workspace)
+        self.assertEqual(current["mvp_state"], "AUTHORIZED")
+        self.assertFalse(current["build_allowed"])
+        self.assertFalse((self.root / ".tempo/run/active.json").exists())
+        self.assertFalse(any(event["event_type"] == "mvp_started" for event in Ledger(self.workspace).events()))
+
+    def test_start_retry_is_idempotent_and_does_not_duplicate_receipt(self) -> None:
+        self.install_valid_case()
+        self.authorize_demo()
+        arguments = {
+            "task_id": "T-TEST-001",
+            "path": "src/tempo/new.py",
+            "lane": "core",
+            "action": "implementation_write",
+            "actor": "agent:builder",
+            "session": SESSION,
+        }
+        first = start(self.workspace, **arguments)
+        second = start(self.workspace, **arguments)
+
+        self.assertFalse(first["idempotent"])
+        self.assertTrue(second["idempotent"])
+        starts = [event for event in Ledger(self.workspace).events() if event["event_type"] == "mvp_started"]
+        self.assertEqual(len(starts), 1)
 
     def test_scope_lane_and_action_are_independently_enforced(self) -> None:
         self.install_valid_case()
