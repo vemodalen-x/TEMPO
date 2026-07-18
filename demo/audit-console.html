@@ -1,0 +1,2040 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>TEMPO Audit trail / 审计轨迹</title>
+  <style>
+    :root {
+      --canvas: #f3f1eb;
+      --surface: #fbfaf6;
+      --surface-strong: #ffffff;
+      --ink: #17211d;
+      --muted: #59655f;
+      --line: #d9ddd7;
+      --line-strong: #bdc6bf;
+      --brand: #235b48;
+      --brand-soft: #e3eee8;
+      --allowed: #1f6a4d;
+      --allowed-soft: #e2f1e9;
+      --blocked: #a34735;
+      --blocked-soft: #fae9e4;
+      --warning: #8a6216;
+      --warning-soft: #f7eed6;
+      --info: #356783;
+      --info-soft: #e5f0f6;
+      --shadow: 0 18px 50px rgba(35, 49, 42, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 13px;
+      --radius-sm: 9px;
+      --mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 95% 0%, rgba(35, 91, 72, 0.08), transparent 28rem),
+        var(--canvas);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select { font: inherit; }
+
+    button { cursor: pointer; }
+
+    :focus-visible {
+      outline: 3px solid rgba(35, 91, 72, 0.32);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      transform: translateY(-180%);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--ink);
+      color: white;
+    }
+
+    .skip-link:focus-visible { transform: translateY(0); }
+
+    .topbar {
+      border-bottom: 1px solid rgba(189, 198, 191, 0.72);
+      background: rgba(251, 250, 246, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      width: min(1440px, calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--ink);
+      color: white;
+      font-weight: 750;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-name {
+      font-weight: 760;
+      letter-spacing: 0.08em;
+    }
+
+    .brand-context {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .profile-badge {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--muted);
+      padding: 8px 11px;
+      font-size: 0.84rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    select,
+    input[type="search"],
+    input[type="text"] {
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface-strong);
+      color: var(--ink);
+      padding: 8px 11px;
+    }
+
+    .button {
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 13px;
+      background: var(--surface-strong);
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .button:hover { border-color: var(--brand); }
+
+    .button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: white;
+    }
+
+    .button.ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--brand);
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .fixture-banner {
+      border-bottom: 1px solid #e0cfa1;
+      background: #fff6db;
+      color: #624b13;
+    }
+
+    .fixture-inner {
+      width: min(1440px, calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      font-size: 0.86rem;
+    }
+
+    .fixture-inner strong { color: #49370d; }
+
+    main {
+      width: min(1440px, calc(100% - 40px));
+      margin: 28px auto 56px;
+    }
+
+    .loading-card,
+    .setup-card {
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .setup-card { display: none; }
+
+    .setup-card p {
+      max-width: 620px;
+      color: var(--muted);
+    }
+
+    .app[hidden],
+    .panel[hidden] { display: none !important; }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--brand);
+      font-size: 0.76rem;
+      font-weight: 760;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p { overflow-wrap: anywhere; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -0.045em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .today-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 28px;
+      align-items: stretch;
+      padding: clamp(24px, 4vw, 42px);
+      border: 1px solid rgba(35, 91, 72, 0.18);
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(120deg, rgba(227, 238, 232, 0.8), rgba(251, 250, 246, 0.92) 55%),
+        var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .today-copy {
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .today-copy strong { color: var(--ink); }
+
+    .today-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px;
+      border: 1px solid rgba(189, 198, 191, 0.8);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 720;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--blocked);
+      box-shadow: 0 0 0 5px var(--blocked-soft);
+    }
+
+    .next-action {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 14px 0 26px;
+    }
+
+    .metric {
+      min-height: 104px;
+      padding: 17px 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+    }
+
+    .metric-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.77rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 1.12rem;
+      font-weight: 760;
+    }
+
+    .metric-meta {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.77rem;
+    }
+
+    .workbench {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 3px;
+      overflow-x: auto;
+      padding: 10px 12px 0;
+      border-bottom: 1px solid var(--line);
+      background: #f8f7f2;
+    }
+
+    .tab {
+      border: 0;
+      border-bottom: 3px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 11px 15px 12px;
+      font-weight: 680;
+      white-space: nowrap;
+    }
+
+    .tab[aria-selected="true"] {
+      border-bottom-color: var(--brand);
+      color: var(--ink);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(145px, 0.3fr)) auto;
+      gap: 10px;
+      align-items: end;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .control label {
+      display: block;
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 680;
+    }
+
+    .control input,
+    .control select { width: 100%; }
+
+    .keyboard-hint {
+      margin: 0;
+      padding: 0 16px 12px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    kbd {
+      border: 1px solid var(--line-strong);
+      border-bottom-width: 2px;
+      border-radius: 5px;
+      background: white;
+      padding: 1px 5px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+    }
+
+    .timeline-layout {
+      display: grid;
+      grid-template-columns: minmax(330px, 0.78fr) minmax(460px, 1.22fr);
+      min-height: 620px;
+    }
+
+    .timeline-column {
+      border-right: 1px solid var(--line);
+      background: #f8f7f3;
+    }
+
+    .section-head {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .timeline {
+      max-height: 690px;
+      overflow: auto;
+      padding: 9px;
+    }
+
+    .timeline-empty {
+      padding: 34px 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .event-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 12px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: inherit;
+      padding: 13px 12px;
+      text-align: left;
+    }
+
+    .event-row:hover { background: white; }
+
+    .event-row[aria-current="true"] {
+      border-color: rgba(35, 91, 72, 0.35);
+      background: white;
+      box-shadow: 0 8px 24px rgba(35, 49, 42, 0.06);
+    }
+
+    .event-dot {
+      width: 9px;
+      height: 9px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: var(--info);
+      box-shadow: 0 0 0 4px var(--info-soft);
+    }
+
+    .event-dot.allowed {
+      background: var(--allowed);
+      box-shadow: 0 0 0 4px var(--allowed-soft);
+    }
+
+    .event-dot.blocked {
+      background: var(--blocked);
+      box-shadow: 0 0 0 4px var(--blocked-soft);
+    }
+
+    .event-dot.warning {
+      background: var(--warning);
+      box-shadow: 0 0 0 4px var(--warning-soft);
+    }
+
+    .event-topline,
+    .event-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .event-sequence,
+    .event-time,
+    .event-meta {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .event-summary {
+      display: block;
+      margin: 5px 0 7px;
+      font-size: 0.91rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .event-summary-zh,
+    .detail-zh {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .reason-code,
+    .mono {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .detail-column {
+      min-width: 0;
+      background: var(--surface-strong);
+    }
+
+    .detail-scroll {
+      max-height: 748px;
+      overflow: auto;
+      padding: clamp(22px, 3vw, 34px);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 14px 0 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 27px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: var(--info-soft);
+      color: var(--info);
+      font-size: 0.72rem;
+      font-weight: 720;
+    }
+
+    .badge.allowed { background: var(--allowed-soft); color: var(--allowed); }
+    .badge.blocked { background: var(--blocked-soft); color: var(--blocked); }
+    .badge.warning { background: var(--warning-soft); color: var(--warning); }
+
+    .detail-lead {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .detail-section {
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-section h3 { margin-bottom: 11px; }
+
+    .why-card,
+    .state-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8f7f3;
+    }
+
+    .state-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .state-value {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 650;
+    }
+
+    .state-arrow { color: var(--muted); }
+
+    .ref-groups {
+      display: grid;
+      gap: 13px;
+    }
+
+    .ref-group-title {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 680;
+      text-transform: capitalize;
+    }
+
+    .ref-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .ref-chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: var(--brand);
+      padding: 5px 9px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
+
+    .hash-value {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    details.raw {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8f7f3;
+    }
+
+    details.raw summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 680;
+    }
+
+    pre {
+      max-height: 420px;
+      overflow: auto;
+      margin: 0;
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .panel-body { padding: clamp(20px, 3vw, 32px); }
+
+    .panel-intro {
+      max-width: 760px;
+      margin: 8px 0 22px;
+      color: var(--muted);
+    }
+
+    .trace-controls {
+      display: flex;
+      gap: 9px;
+      max-width: 800px;
+      margin-bottom: 24px;
+    }
+
+    .trace-controls input { flex: 1; }
+
+    .trace-summary {
+      margin-bottom: 16px;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8f7f3;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .trace-lane {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #f8f7f3;
+      padding: 13px;
+    }
+
+    .trace-lane > h3 {
+      margin-bottom: 11px;
+      color: var(--muted);
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .trace-card {
+      width: 100%;
+      display: block;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: white;
+      color: inherit;
+      padding: 11px;
+      text-align: left;
+    }
+
+    .trace-card:hover { border-color: var(--brand); }
+
+    .trace-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.84rem;
+    }
+
+    .trace-card span {
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .receipt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .receipt-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: white;
+      padding: 18px;
+    }
+
+    .receipt-card p {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .check-list {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .export-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: center;
+      max-width: 900px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: white;
+      padding: 22px;
+    }
+
+    .export-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .claim-box {
+      max-width: 900px;
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid #e0cfa1;
+      border-radius: var(--radius-md);
+      background: #fff8e7;
+      color: #624b13;
+      font-size: 0.84rem;
+    }
+
+    .live-status {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 20;
+      max-width: 380px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--ink);
+      color: white;
+      padding: 10px 13px;
+      box-shadow: var(--shadow);
+      font-size: 0.8rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .live-status.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1050px) {
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .control.search-control { grid-column: 1 / -1; }
+      .timeline-layout { grid-template-columns: 1fr; }
+      .timeline-column { border-right: 0; border-bottom: 1px solid var(--line); }
+      .timeline { max-height: 430px; }
+      .detail-scroll { max-height: none; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar-inner,
+      .fixture-inner,
+      main { width: min(100% - 24px, 1440px); }
+      .topbar-inner { min-height: 64px; }
+      .topbar-inner { flex-wrap: wrap; padding: 10px 0; }
+      .top-actions { width: 100%; flex-wrap: wrap; justify-content: space-between; }
+      .brand-context,
+      .profile-label span { display: none; }
+      .fixture-inner { align-items: flex-start; flex-direction: column; gap: 3px; padding: 9px 0; }
+      .today-card { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .controls { grid-template-columns: 1fr; }
+      .control.search-control { grid-column: auto; }
+      .trace-grid,
+      .receipt-grid { grid-template-columns: 1fr; }
+      .trace-controls,
+      .export-card { grid-template-columns: 1fr; flex-direction: column; align-items: stretch; }
+      .export-card { display: grid; }
+      .state-grid { grid-template-columns: 1fr; }
+      .state-arrow { transform: rotate(90deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+
+    @media print {
+      .top-actions,
+      .tabs,
+      .controls,
+      .keyboard-hint,
+      .button,
+      .live-status { display: none !important; }
+      body { background: white; }
+      main { width: 100%; margin: 0; }
+      .workbench,
+      .today-card { box-shadow: none; }
+      .timeline-layout { grid-template-columns: 1fr; }
+      .timeline-column { border: 0; }
+      .timeline,
+      .detail-scroll { max-height: none; overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to audit content / 跳到审计内容</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-lockup" aria-label="TEMPO audit console">
+        <div class="brand-mark" aria-hidden="true">T</div>
+        <div>
+          <div class="brand-name">TEMPO</div>
+          <div class="brand-context">Audit trail / 审计轨迹</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="profile-badge">Solo profile / 个人配置</span>
+        <button class="button" id="loadFixture" type="button">Load fixture / 载入夹具</button>
+        <input id="fixturePicker" type="file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+  </header>
+
+  <div class="fixture-banner" role="note">
+    <div class="fixture-inner">
+      <span><strong>Synthetic fixture / 合成夹具</strong> — interaction validation only; this console cannot authorize work.</span>
+      <span id="fixtureSource">Loading adjacent fixture…</span>
+    </div>
+  </div>
+
+  <main id="mainContent">
+    <div class="loading-card" id="loadingCard">
+      <div>
+        <p class="eyebrow">Synthetic projection</p>
+        <h1>Checking fixture self-consistency…</h1>
+        <p lang="zh-CN">正在检查合成夹具的内部一致性…</p>
+      </div>
+    </div>
+
+    <section class="setup-card" id="setupCard" aria-labelledby="setupTitle">
+      <div>
+        <p class="eyebrow">One local step / 一个本地步骤</p>
+        <h1 id="setupTitle">Load the synthetic audit fixture</h1>
+        <p>Direct file access can block the adjacent JSON file. Select <code>demo/audit-console.fixture.json</code>, or serve only the demo directory with <code>python -m http.server 8000 --bind 127.0.0.1 --directory demo</code>.</p>
+        <p>直接打开 HTML 时浏览器可能阻止读取相邻 JSON。请选择夹具文件，或通过本地 HTTP 服务打开。</p>
+        <button class="button primary" id="setupLoad" type="button">Choose fixture / 选择夹具</button>
+      </div>
+    </section>
+
+    <div class="app" id="app" hidden>
+      <section class="today-card" id="todayCard" aria-labelledby="todayTitle">
+        <div>
+          <p class="eyebrow">Today / 今天</p>
+          <h1 id="todayTitle">No product action is currently authorized.</h1>
+          <p class="today-copy" id="todayCopy"></p>
+        </div>
+        <div class="today-side">
+          <div>
+            <div class="status-line"><span class="status-dot" aria-hidden="true"></span><span id="todayReason"></span></div>
+            <p class="next-action" id="todayNext"></p>
+          </div>
+          <button class="button primary" id="viewLatest" type="button">Review latest event / 查看最新事件</button>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Audit summary">
+        <div class="metric">
+          <span class="metric-label">Authority / 权限</span>
+          <span class="metric-value" id="metricAuthority">—</span>
+          <span class="metric-meta" id="metricAuthorityMeta">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Fixture integrity / 夹具一致性</span>
+          <span class="metric-value" id="metricChain">Verifying</span>
+          <span class="metric-meta" id="metricChainMeta">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Events / 事件</span>
+          <span class="metric-value" id="metricEvents">—</span>
+          <span class="metric-meta" id="metricEventsMeta">—</span>
+        </div>
+        <div class="metric">
+          <span class="metric-label">Receipt examples / 回执示例</span>
+          <span class="metric-value" id="metricReceipts">—</span>
+          <span class="metric-meta">illustrative · not executed</span>
+        </div>
+      </section>
+
+      <section class="workbench" aria-label="Audit workbench">
+        <div class="tabs" role="tablist" aria-label="Audit views">
+          <button class="tab" id="tabTimeline" role="tab" aria-selected="true" aria-controls="timelinePanel" data-tab="timeline" type="button">Timeline / 时间线</button>
+          <button class="tab" id="tabTrace" role="tab" tabindex="-1" aria-selected="false" aria-controls="tracePanel" data-tab="trace" type="button">Trace / 追溯</button>
+          <button class="tab" id="tabReceipts" role="tab" tabindex="-1" aria-selected="false" aria-controls="receiptsPanel" data-tab="receipts" type="button">Receipt examples / 回执示例</button>
+          <button class="tab" id="tabExport" role="tab" tabindex="-1" aria-selected="false" aria-controls="exportPanel" data-tab="export" type="button">Export / 导出</button>
+        </div>
+
+        <section class="panel" id="timelinePanel" role="tabpanel" aria-labelledby="tabTimeline">
+          <div class="controls" aria-label="Timeline filters">
+            <div class="control search-control">
+              <label for="searchInput">Search ID, reason, summary / 搜索</label>
+              <input id="searchInput" type="search" placeholder="Try SCOPE_NOT_AUTHORIZED or W-DEMO-0001">
+            </div>
+            <div class="control">
+              <label for="outcomeFilter">Outcome / 结果</label>
+              <select id="outcomeFilter">
+                <option value="all">All / 全部</option>
+                <option value="allowed">Allowed / 允许</option>
+                <option value="blocked">Blocked / 阻止</option>
+                <option value="warning">Warning / 警告</option>
+                <option value="info">Info / 信息</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="actorFilter">Actor / 执行者</label>
+              <select id="actorFilter"><option value="all">All / 全部</option></select>
+            </div>
+            <div class="control">
+              <label for="typeFilter">Event type / 事件类型</label>
+              <select id="typeFilter"><option value="all">All / 全部</option></select>
+            </div>
+            <button class="button ghost" id="clearFilters" type="button">Clear / 清除</button>
+          </div>
+          <p class="keyboard-hint"><kbd>/</kbd> search · <kbd>J</kbd>/<kbd>K</kbd> move · <kbd>E</kbd> export</p>
+
+          <div class="timeline-layout">
+            <div class="timeline-column">
+              <div class="section-head">
+                <h2>Events / 事件</h2>
+                <span class="result-count" id="resultCount"></span>
+              </div>
+              <div class="timeline" id="timeline" role="list" aria-label="Governed projection records"></div>
+            </div>
+            <article class="detail-column" id="eventDetail" tabindex="-1" aria-label="Selected projection record">
+              <div class="detail-scroll" id="eventDetailContent"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="tracePanel" role="tabpanel" aria-labelledby="tabTrace" hidden>
+          <div class="panel-body">
+            <p class="eyebrow">Recorded co-references / 已记录共同引用</p>
+            <h2>Trace one governed identifier / 追溯一个治理标识符</h2>
+            <p class="panel-intro">See records that explicitly contain the same ID. Earlier and later positions show projection order only; they do not imply causality or complete replay. <span lang="zh-CN">仅显示显式包含同一 ID 的记录；先后位置不代表因果关系，也不宣称完整回放。</span></p>
+            <div class="trace-controls">
+              <input id="traceQuery" type="text" aria-label="Identifier to trace" placeholder="Event, evidence, task, charter, assessment, warrant, or receipt ID">
+              <button class="button primary" id="runTrace" type="button">Trace / 追溯</button>
+            </div>
+            <div class="trace-summary" id="traceSummary" tabindex="-1">Select an event or enter an identifier.</div>
+            <div class="trace-grid" id="traceResult">
+              <section class="trace-lane"><h3>Earlier co-references / 更早共同引用</h3><div id="traceUpstream"></div></section>
+              <section class="trace-lane"><h3>Matching record(s) / 匹配记录</h3><div id="traceSelected"></div></section>
+              <section class="trace-lane"><h3>Later co-references / 更晚共同引用</h3><div id="traceDownstream"></div></section>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="receiptsPanel" role="tabpanel" aria-labelledby="tabReceipts" hidden>
+          <div class="panel-body">
+            <p class="eyebrow">Illustrative · not executed / 仅示例 · 未执行</p>
+            <h2>Receipt-shaped examples / 回执形态示例</h2>
+            <p class="panel-intro">These cards show where future machine-generated receipts would appear. They are not receipt-schema records and make no execution or attestation claim. <span lang="zh-CN">这些卡片仅展示未来机器回执的位置，不是实际回执，也不声称已执行或已证明。</span></p>
+            <div class="receipt-grid" id="receiptList"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="exportPanel" role="tabpanel" aria-labelledby="tabExport" hidden>
+          <div class="panel-body">
+            <p class="eyebrow">Portable review / 可移交审阅</p>
+            <h2>Export a self-consistent fixture view / 导出内部一致的夹具视图</h2>
+            <p class="panel-intro">The prototype exports the complete synthetic fixture or a summary HTML view. Export is disabled unless the projection and complete bundle hashes match. A self-contained hash is not a durable or external anchor. <span lang="zh-CN">只有投影链与完整 bundle 哈希都匹配时才允许导出；自包含哈希不等于持久或外部锚点。</span></p>
+            <div class="export-card">
+              <div>
+                <h3 id="exportSummary">Preparing export summary…</h3>
+                <p class="panel-intro" id="exportMeta"></p>
+              </div>
+              <div class="export-actions">
+                <button class="button primary" id="exportJson" type="button" disabled>Export JSON</button>
+                <button class="button" id="exportHtml" type="button" disabled>Export HTML</button>
+              </div>
+            </div>
+            <div class="claim-box" id="claimBoundary"></div>
+          </div>
+        </section>
+      </section>
+
+      <footer>
+        Read-only prototype · no live repository access · no signature or authorization capability<br>
+        只读交互原型 · 不读取真实仓库 · 不具备签名或授权能力
+      </footer>
+    </div>
+  </main>
+
+  <div class="live-status" id="liveStatus" aria-live="polite"></div>
+  <output id="selfTestResult" hidden aria-hidden="true"></output>
+
+  <script>
+    "use strict";
+
+    const GENESIS = "sha256:" + "0".repeat(64);
+    const CLAIM_BOUNDARY = "Synthetic interaction fixture for local UI validation. It is not customer evidence, build authority, or external attestation.";
+    const CLAIM_BOUNDARY_ZH = "仅用于本地界面验证的合成交互夹具；不是客户证据、构建权限或外部证明。";
+    const NEXT_ACTION = "NO_SAFE_AUTOMATED_ACTION: a human owner must define a new governed MVP cycle; the revoked warrant cannot be reused.";
+    const NEXT_ACTION_ZH = "无可安全自动执行的动作：必须由人类负责人定义新的受治理 MVP 周期；已撤销的 warrant 不能复用。";
+    const REF_GROUPS = ["artifacts", "assessments", "charters", "evidence", "hypotheses", "receipts", "tasks", "warrants"];
+
+    function fixedRefs({tasks = [], hypotheses = [], charters = [], assessments = [], warrants = [], receipts = [], evidence = [], artifacts = []} = {}) {
+      return {tasks, hypotheses, charters, assessments, warrants, receipts, evidence, artifacts};
+    }
+
+    const EXPECTED_STORY = [
+      ["opportunity_created", "allowed", "WORKSPACE_INITIALIZED", "Cycle 1: DRAFT / NOT_AUTHORIZED", "Cycle 1: DISCOVERY / NOT_AUTHORIZED", "human:founder"],
+      ["evidence_added", "allowed", "EVIDENCE_RECORDED", "Cycle 1: DISCOVERY / NOT_AUTHORIZED", "Cycle 1: VALIDATING / NOT_AUTHORIZED", "agent:researcher"],
+      ["readiness_assessed", "blocked", "EXPERIMENT_REQUIRED", "Cycle 1: VALIDATING / NOT_AUTHORIZED", "Cycle 1: EXPERIMENT_REQUIRED / NOT_AUTHORIZED", "kernel:tempo"],
+      ["evidence_added", "allowed", "EVIDENCE_RECORDED", "Cycle 1: EXPERIMENT_REQUIRED / NOT_AUTHORIZED", "Cycle 2: VALIDATING / NOT_AUTHORIZED", "verifier:local"],
+      ["readiness_assessed", "allowed", "MVP_AUTHORIZED", "Cycle 2: VALIDATING / NOT_AUTHORIZED", "Cycle 2: MVP_CANDIDATE / NOT_AUTHORIZED", "kernel:tempo"],
+      ["mvp_charter_signed", "allowed", "HUMAN_CHARTER_SIGNATURE", "Cycle 2: MVP_CANDIDATE / NOT_AUTHORIZED", "Cycle 2: MVP_CANDIDATE / NOT_AUTHORIZED", "human:founder"],
+      ["mvp_authorized", "allowed", "HUMAN_TTY_AUTHORIZATION", "Cycle 2: MVP_CANDIDATE / NOT_AUTHORIZED", "Cycle 2: MVP_CANDIDATE / AUTHORIZED", "human:founder"],
+      ["mvp_start_blocked", "blocked", "SCOPE_NOT_AUTHORIZED", "Cycle 2: MVP_CANDIDATE / AUTHORIZED", "Cycle 2: MVP_CANDIDATE / AUTHORIZED", "agent:builder"],
+      ["mvp_started", "allowed", "VALID_WARRANT_AND_SCOPE", "Cycle 2: MVP_CANDIDATE / AUTHORIZED", "Cycle 2: MVP_CANDIDATE / BUILDING", "agent:builder"],
+      ["mvp_authorization_invalidated", "blocked", "PROTECTED_INPUT_DRIFT", "Cycle 2: MVP_CANDIDATE / BUILDING", "Cycle 2: MVP_CANDIDATE / REVOKED", "kernel:tempo"]
+    ];
+    const EXPECTED_REFS = [
+      fixedRefs({hypotheses: ["H-AUDIT-001"], artifacts: ["plan/opportunity.json"]}),
+      fixedRefs({hypotheses: ["H-AUDIT-001"], evidence: ["E-AUDIT-001"], artifacts: ["plan/evidence/E-AUDIT-001.json"]}),
+      fixedRefs({hypotheses: ["H-AUDIT-001"], assessments: ["A-DEMO-0001"], evidence: ["E-AUDIT-001"], artifacts: [".tempo/assessments/A-DEMO-0001.json"]}),
+      fixedRefs({hypotheses: ["H-AUDIT-001"], receipts: ["R-DEMO-EXPERIMENT"], evidence: ["E-AUDIT-001", "E-AUDIT-002"], artifacts: ["plan/evidence/E-AUDIT-002.json"]}),
+      fixedRefs({hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], evidence: ["E-AUDIT-001", "E-AUDIT-002"], artifacts: [".tempo/assessments/A-DEMO-0002.json"]}),
+      fixedRefs({tasks: ["T-AUDIT-PHASE1"], hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], evidence: ["E-AUDIT-001", "E-AUDIT-002"], artifacts: ["plan/mvp-charter.json"]}),
+      fixedRefs({tasks: ["T-AUDIT-PHASE1"], hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], warrants: ["W-DEMO-0001"], evidence: ["E-AUDIT-001", "E-AUDIT-002"], artifacts: ["plan/authorization-warrant.json"]}),
+      fixedRefs({tasks: ["T-AUDIT-PHASE1"], hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], warrants: ["W-DEMO-0001"], artifacts: ["src/unrelated.py"]}),
+      fixedRefs({tasks: ["T-AUDIT-PHASE1"], hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], warrants: ["W-DEMO-0001"], artifacts: ["src/tempo/audit.py"]}),
+      fixedRefs({tasks: ["T-AUDIT-PHASE1"], hypotheses: ["H-AUDIT-001"], charters: ["M-AUDIT-001"], assessments: ["A-DEMO-0002"], warrants: ["W-DEMO-0001"], artifacts: ["plan/mvp-charter.json"]})
+    ];
+    let loadGeneration = 0;
+    const state = {
+      data: null,
+      filtered: [],
+      selectedId: null,
+      integrityValid: null,
+      activeTab: "timeline"
+    };
+
+    const byId = (id) => document.getElementById(id);
+
+    function announce(message) {
+      const node = byId("liveStatus");
+      node.textContent = message;
+      node.classList.add("visible");
+      window.clearTimeout(announce.timeout);
+      announce.timeout = window.setTimeout(() => node.classList.remove("visible"), 2400);
+    }
+
+    function setText(id, value) {
+      byId(id).textContent = value == null ? "—" : String(value);
+    }
+
+    function make(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (className && (className.includes("detail-zh") || className.includes("event-summary-zh"))) node.lang = "zh-CN";
+      if (text != null) node.textContent = String(text);
+      return node;
+    }
+
+    function deepFreeze(value) {
+      if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+      Object.values(value).forEach(deepFreeze);
+      return Object.freeze(value);
+    }
+
+    function assertSafeNumbers(value, path = "fixture") {
+      if (typeof value === "number" && !Number.isSafeInteger(value)) {
+        throw new Error(path + " contains a non-integer or unsafe JSON number.");
+      }
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => assertSafeNumbers(item, path + "[" + index + "]"));
+      } else if (value && typeof value === "object") {
+        Object.entries(value).forEach(([key, item]) => assertSafeNumbers(item, path + "." + key));
+      }
+    }
+
+    function assertIntegerJsonLexemes(text) {
+      let inString = false;
+      let escaped = false;
+      for (let index = 0; index < text.length; index += 1) {
+        const character = text[index];
+        if (inString) {
+          if (escaped) {
+            escaped = false;
+          } else if (character === "\\") {
+            escaped = true;
+          } else if (character === '"') {
+            inString = false;
+          }
+          continue;
+        }
+        if (character === '"') {
+          inString = true;
+          continue;
+        }
+        if (character === "-" || /[0-9]/.test(character)) {
+          const start = index;
+          while (index + 1 < text.length && /[0-9eE+.-]/.test(text[index + 1])) index += 1;
+          const token = text.slice(start, index + 1);
+          if (!/^-?(0|[1-9][0-9]*)$/.test(token)) {
+            throw new Error("Fixture JSON numbers must use integer lexical form; rejected " + token + ".");
+          }
+        }
+      }
+    }
+
+    function isUtcSecond(value) {
+      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(value)) return false;
+      const parsed = new Date(value);
+      return !Number.isNaN(parsed.valueOf()) && parsed.toISOString() === value.replace("Z", ".000Z");
+    }
+
+    function stableStringify(value) {
+      if (value === null || typeof value !== "object") return JSON.stringify(value);
+      if (Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+      return "{" + Object.keys(value).sort().map((key) => JSON.stringify(key) + ":" + stableStringify(value[key])).join(",") + "}";
+    }
+
+    async function sha256(value) {
+      const bytes = new TextEncoder().encode(value);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return "sha256:" + Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function verifyFixture(data) {
+      let previous = GENESIS;
+      for (const event of data.events) {
+        if (event.previous_projection_hash !== previous) {
+          return {valid: false, recordId: event.record_id, reason: "previous_projection_hash mismatch"};
+        }
+        const payload = {};
+        Object.keys(event).forEach((key) => {
+          if (key !== "projection_hash") payload[key] = event[key];
+        });
+        const calculated = await sha256(stableStringify(payload));
+        if (event.projection_hash !== calculated) {
+          return {valid: false, recordId: event.record_id, reason: "projection_hash mismatch"};
+        }
+        previous = calculated;
+      }
+      const checkpoint = data.projection_checkpoint;
+      if (!checkpoint || checkpoint.sequence !== data.events.length) {
+        return {valid: false, recordId: "projection_checkpoint", reason: "checkpoint sequence mismatch"};
+      }
+      if (checkpoint.head_hash !== previous) {
+        return {valid: false, recordId: "projection_checkpoint", reason: "checkpoint head mismatch"};
+      }
+      const bundle = JSON.parse(JSON.stringify(data));
+      delete bundle.projection_checkpoint.bundle_hash;
+      const calculatedBundle = await sha256(stableStringify(bundle));
+      if (checkpoint.bundle_hash !== calculatedBundle) {
+        return {valid: false, recordId: "projection_checkpoint", reason: "complete bundle hash mismatch"};
+      }
+      return {valid: true, head: previous, bundleHash: calculatedBundle};
+    }
+
+    function assertFixture(data) {
+      assertSafeNumbers(data);
+      if (!data || !Number.isInteger(data.schema_version) || data.schema_version !== 1 || data.fixture !== true) {
+        throw new Error("This prototype accepts only schema_version 1 synthetic fixtures.");
+      }
+      if (JSON.stringify(data).length > 1000000) throw new Error("Fixture exceeds the 1 MB prototype limit.");
+      if (data.profile !== "solo" || !isUtcSecond(data.generated_at) || data.claim_boundary !== CLAIM_BOUNDARY || data.claim_boundary_zh !== CLAIM_BOUNDARY_ZH) {
+        throw new Error("Fixture trust boundary or profile does not match the shipped prototype contract.");
+      }
+      if (!data.projection || data.projection.kind !== "synthetic_audit_projection" || data.projection.authoritative !== false || data.projection.source !== "fixture://tempo-audit-console") {
+        throw new Error("Projection metadata must remain synthetic and non-authoritative.");
+      }
+      if (!data.current || data.current.business_state !== "MVP_CANDIDATE" || data.current.build_allowed !== false || data.current.mvp_state !== "REVOKED" || data.current.reason_code !== "PROTECTED_INPUT_DRIFT" || data.current.next_action !== NEXT_ACTION || data.current.next_action_zh !== NEXT_ACTION_ZH) {
+        throw new Error("Current state must remain revoked and non-authorizing.");
+      }
+      const checkpoint = data.projection_checkpoint;
+      if (!checkpoint || !Number.isInteger(checkpoint.version) || checkpoint.version !== 1 || !Number.isInteger(checkpoint.sequence) || checkpoint.trust !== "self_contained_synthetic_fixture" || !/^sha256:[a-f0-9]{64}$/.test(checkpoint.head_hash) || !/^sha256:[a-f0-9]{64}$/.test(checkpoint.bundle_hash)) {
+        throw new Error("Projection checkpoint must remain self-contained and synthetic.");
+      }
+      if (!Array.isArray(data.events) || data.events.length !== EXPECTED_STORY.length || !Array.isArray(data.receipt_examples) || data.receipt_examples.length !== 2) {
+        throw new Error("Fixture projection records and receipt examples are required.");
+      }
+      const seen = new Set();
+      let previousTimestamp = "";
+      data.events.forEach((event, index) => {
+        if (!event || typeof event !== "object" || !/^AUD-DEMO-[0-9]{4}$/.test(event.record_id) || seen.has(event.record_id) || !Number.isInteger(event.sequence) || event.sequence !== index + 1) {
+          throw new Error("Projection record IDs and sequences must be unique and contiguous.");
+        }
+        seen.add(event.record_id);
+        const actual = [event.type, event.outcome, event.reason_code, event.state_before, event.state_after, event.actor];
+        if (JSON.stringify(actual) !== JSON.stringify(EXPECTED_STORY[index])) {
+          throw new Error("Projection record violates the governed two-cycle story: " + event.record_id);
+        }
+        if (!/^(human|agent|kernel|verifier):[A-Za-z0-9][A-Za-z0-9._@+:/-]{1,127}$/.test(event.actor) || !isUtcSecond(event.timestamp) || (previousTimestamp && event.timestamp < previousTimestamp)) {
+          throw new Error("Projection timestamps must be RFC3339 UTC.");
+        }
+        previousTimestamp = event.timestamp;
+        if (!event.refs || JSON.stringify(Object.keys(event.refs).sort()) !== JSON.stringify(REF_GROUPS)) {
+          throw new Error("Every projection record needs the stable reference groups.");
+        }
+        for (const values of Object.values(event.refs)) {
+          if (!Array.isArray(values) || values.length > 100 || values.some((value) => typeof value !== "string" || value.length < 1 || value.length > 512) || new Set(values).size !== values.length) {
+            throw new Error("Projection reference groups must contain bounded unique strings.");
+          }
+        }
+        if (stableStringify(event.refs) !== stableStringify(EXPECTED_REFS[index])) {
+          throw new Error("Projection references violate the fixed governed story: " + event.record_id);
+        }
+        if (![event.summary, event.summary_zh, event.detail, event.detail_zh].every((value) => typeof value === "string" && value.length > 0 && value.length <= 4000)) {
+          throw new Error("Projection records require bounded bilingual text.");
+        }
+        if (!/^sha256:[a-f0-9]{64}$/.test(event.previous_projection_hash) || !/^sha256:[a-f0-9]{64}$/.test(event.projection_hash)) {
+          throw new Error("Projection hashes must be lowercase SHA-256 identifiers.");
+        }
+      });
+      const exampleIds = new Set();
+      data.receipt_examples.forEach((example) => {
+        if (!/^R-[A-Z0-9][A-Z0-9._-]{2,63}$/.test(example.example_receipt_id) || exampleIds.has(example.example_receipt_id)) {
+          throw new Error("Receipt example IDs must be unique and well formed.");
+        }
+        exampleIds.add(example.example_receipt_id);
+        const bilingualChecks = Array.isArray(example.planned_checks) && Array.isArray(example.planned_checks_zh) && example.planned_checks.length > 0 && example.planned_checks.length === example.planned_checks_zh.length && example.planned_checks.every((value) => typeof value === "string" && value.trim() && value.length <= 4000) && example.planned_checks_zh.every((value) => typeof value === "string" && value.trim() && value.length <= 4000);
+        if (example.illustrative !== true || example.executed !== false || example.outcome !== "not_executed" || typeof example.summary !== "string" || !example.summary.trim() || typeof example.summary_zh !== "string" || !example.summary_zh.trim() || !example.provenance || example.provenance.kind !== "illustrative_projection" || example.provenance.authoritative !== false || example.provenance.trust !== "no_execution_claim" || example.provenance.attestation_ref !== null || !bilingualChecks) {
+          throw new Error("Receipt examples must remain illustrative and explicitly not executed.");
+        }
+      });
+      data.events.forEach((event) => event.refs.receipts.forEach((ref) => {
+        if (!exampleIds.has(ref)) throw new Error("Projection references an unknown receipt example: " + ref);
+      }));
+    }
+
+    function beginLoad() {
+      const token = ++loadGeneration;
+      state.data = null;
+      state.filtered = [];
+      state.selectedId = null;
+      state.integrityValid = null;
+      byId("app").hidden = true;
+      byId("setupCard").style.display = "none";
+      byId("loadingCard").style.display = "grid";
+      return token;
+    }
+
+    function showLoadFailure(message, token) {
+      if (token !== loadGeneration) return;
+      byId("app").hidden = true;
+      byId("exportJson").disabled = true;
+      byId("exportHtml").disabled = true;
+      byId("loadingCard").style.display = "none";
+      byId("setupCard").style.display = "grid";
+      setText("fixtureSource", message);
+    }
+
+    async function acceptFixture(rawText, sourceLabel, token) {
+      assertIntegerJsonLexemes(rawText);
+      const snapshot = JSON.parse(rawText);
+      assertFixture(snapshot);
+      const integrity = await verifyFixture(snapshot);
+      if (token !== loadGeneration) return;
+      if (!integrity.valid) throw new Error(integrity.reason + " at " + integrity.recordId);
+      try {
+        state.data = deepFreeze(snapshot);
+        state.selectedId = snapshot.events[snapshot.events.length - 1].record_id;
+        state.integrityValid = true;
+        populateFilters();
+        renderAll();
+      } catch (error) {
+        state.data = null;
+        state.filtered = [];
+        state.selectedId = null;
+        state.integrityValid = null;
+        byId("app").hidden = true;
+        throw error;
+      }
+      setText("fixtureSource", sourceLabel);
+      byId("loadingCard").style.display = "none";
+      byId("setupCard").style.display = "none";
+      byId("app").hidden = false;
+      announce("Synthetic fixture is self-consistent / 合成夹具内部一致");
+      if (new URLSearchParams(location.search).get("selftest") === "1") {
+        window.setTimeout(runBrowserSelfTest, 0);
+      }
+    }
+
+    async function loadAdjacentFixture() {
+      const token = beginLoad();
+      try {
+        const response = await fetch("audit-console.fixture.json", {cache: "no-store"});
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const text = await response.text();
+        if (new TextEncoder().encode(text).length > 1000000) throw new Error("fixture exceeds the 1 MB prototype limit");
+        await acceptFixture(text, "audit-console.fixture.json", token);
+      } catch (error) {
+        showLoadFailure("Fixture selection required · " + error.message, token);
+      }
+    }
+
+    async function loadPickedFile(file) {
+      if (!file) return;
+      const token = beginLoad();
+      try {
+        if (file.size > 1000000) throw new Error("file exceeds the 1 MB prototype limit");
+        const text = await file.text();
+        await acceptFixture(text, file.name + " · local file", token);
+      } catch (error) {
+        showLoadFailure("Fixture rejected · " + error.message, token);
+        announce("Fixture rejected: " + error.message);
+      }
+    }
+
+    function populateFilters() {
+      const actors = [...new Set(state.data.events.map((event) => event.actor))].sort();
+      const types = [...new Set(state.data.events.map((event) => event.type))].sort();
+      const actorFilter = byId("actorFilter");
+      const typeFilter = byId("typeFilter");
+      actorFilter.replaceChildren(new Option("All / 全部", "all"));
+      typeFilter.replaceChildren(new Option("All / 全部", "all"));
+      actors.forEach((actor) => actorFilter.add(new Option(actor, actor)));
+      types.forEach((type) => typeFilter.add(new Option(type.replaceAll("_", " "), type)));
+    }
+
+    function renderAll() {
+      renderToday();
+      renderMetrics();
+      applyFilters();
+      renderReceipts();
+      renderExport();
+    }
+
+    function renderToday() {
+      const current = state.data.current;
+      setText("todayReason", current.reason_code);
+      setText("todayNext", current.next_action + " / " + current.next_action_zh);
+      const copy = byId("todayCopy");
+      copy.replaceChildren();
+      copy.append("Current state / 当前状态: ");
+      const strong = make("strong", "", current.business_state + " / " + current.mvp_state);
+      copy.append(strong, ". The warrant is permanently revoked for this MVP state. History remains reviewable, but there is no safe automated next action. / 该 warrant 在当前 MVP 状态下已永久撤销；历史仍可审阅，但没有可安全自动执行的下一步。 ");
+    }
+
+    function renderMetrics() {
+      if (!state.data) return;
+      const blocked = state.data.events.filter((event) => event.outcome === "blocked").length;
+      setText("metricAuthority", state.data.current.build_allowed ? "Allowed" : "Blocked");
+      setText("metricAuthorityMeta", state.data.current.reason_code);
+      if (state.integrityValid === null) {
+        setText("metricChain", "Checking");
+        setText("metricChainMeta", "projection + bundle SHA-256");
+      } else if (state.integrityValid) {
+        setText("metricChain", "Self-consistent");
+        setText("metricChainMeta", state.data.events.length + " records · embedded anchor only");
+      } else {
+        setText("metricChain", "Failed");
+        setText("metricChainMeta", "Export disabled");
+      }
+      setText("metricEvents", state.data.events.length);
+      setText("metricEventsMeta", blocked + " blocked attempts retained");
+      setText("metricReceipts", state.data.receipt_examples.length);
+    }
+
+    function applyFilters() {
+      if (!state.data) return;
+      const query = byId("searchInput").value.trim().toLowerCase();
+      const outcome = byId("outcomeFilter").value;
+      const actor = byId("actorFilter").value;
+      const type = byId("typeFilter").value;
+      state.filtered = state.data.events.filter((event) => {
+        const haystack = JSON.stringify(event).toLowerCase();
+        return (!query || haystack.includes(query))
+          && (outcome === "all" || event.outcome === outcome)
+          && (actor === "all" || event.actor === actor)
+          && (type === "all" || event.type === type);
+      });
+      if (!state.filtered.some((event) => event.record_id === state.selectedId) && state.filtered.length) {
+        state.selectedId = state.filtered[state.filtered.length - 1].record_id;
+      } else if (!state.filtered.length) {
+        state.selectedId = null;
+      }
+      renderTimeline();
+      renderDetail();
+    }
+
+    function clearFilters() {
+      byId("searchInput").value = "";
+      byId("outcomeFilter").value = "all";
+      byId("actorFilter").value = "all";
+      byId("typeFilter").value = "all";
+      applyFilters();
+    }
+
+    function ensureEventVisible(eventId) {
+      if (!state.filtered.some((event) => event.record_id === eventId)) clearFilters();
+    }
+
+    function formatTime(timestamp) {
+      return timestamp.slice(0, 16).replace("T", " ") + " UTC";
+    }
+
+    function renderTimeline() {
+      const timeline = byId("timeline");
+      timeline.replaceChildren();
+      setText("resultCount", state.filtered.length + " of " + state.data.events.length);
+      if (!state.filtered.length) {
+        timeline.append(make("div", "timeline-empty", "No matching events / 没有匹配事件"));
+        return;
+      }
+      state.filtered.forEach((event) => {
+        const item = make("div", "");
+        item.setAttribute("role", "listitem");
+        const row = make("button", "event-row");
+        row.type = "button";
+        row.setAttribute("aria-pressed", event.record_id === state.selectedId ? "true" : "false");
+        row.setAttribute("aria-current", event.record_id === state.selectedId ? "true" : "false");
+        row.dataset.recordId = event.record_id;
+        const dot = make("span", "event-dot " + event.outcome);
+        dot.setAttribute("aria-hidden", "true");
+        const content = make("span", "");
+        const top = make("span", "event-topline");
+        const time = make("time", "event-time", formatTime(event.timestamp));
+        time.dateTime = event.timestamp;
+        top.append(make("span", "event-sequence", "#" + String(event.sequence).padStart(2, "0")), time);
+        const summary = make("span", "event-summary", event.summary);
+        summary.append(make("span", "event-summary-zh", event.summary_zh));
+        const meta = make("span", "event-meta");
+        meta.append(
+          make("span", "reason-code", event.reason_code),
+          make("span", "", event.actor)
+        );
+        content.append(top, summary, meta);
+        row.append(dot, content);
+        row.addEventListener("click", () => {
+          if (selectEvent(event.record_id)) focusSelectedRecord();
+        });
+        item.append(row);
+        timeline.append(item);
+      });
+    }
+
+    function selectedEvent() {
+      return state.data.events.find((event) => event.record_id === state.selectedId) || null;
+    }
+
+    function selectEvent(eventId) {
+      if (!state.filtered.some((event) => event.record_id === eventId)) {
+        announce("Record is outside the current filters / 该记录不在当前筛选结果中");
+        return false;
+      }
+      state.selectedId = eventId;
+      renderTimeline();
+      renderDetail();
+      announce("Selected record " + eventId + " / 已选择记录");
+      return true;
+    }
+
+    function focusSelectedRecord(preferDetail = false) {
+      const row = document.querySelector('[data-record-id="' + CSS.escape(state.selectedId || "") + '"]');
+      const heading = byId("eventDetailHeading");
+      const target = preferDetail && heading ? heading : row;
+      if (target) {
+        target.scrollIntoView({block: "nearest"});
+        target.focus({preventScroll: true});
+      }
+    }
+
+    function renderDetail() {
+      const event = selectedEvent();
+      const root = byId("eventDetailContent");
+      root.replaceChildren();
+      if (!event) {
+        const empty = make("h2", "", state.filtered.length ? "Select an event / 请选择事件" : "No matching events / 没有匹配事件");
+        empty.id = "eventDetailHeading";
+        empty.tabIndex = -1;
+        root.append(empty);
+        return;
+      }
+      root.append(make("p", "eyebrow", event.type.replaceAll("_", " ")));
+      const title = make("h2", "", event.summary);
+      title.id = "eventDetailHeading";
+      title.tabIndex = -1;
+      root.append(title);
+      root.append(make("p", "detail-zh", event.summary_zh));
+      const badges = make("div", "badge-row");
+      badges.append(
+        make("span", "badge " + event.outcome, event.outcome.toUpperCase()),
+        make("span", "badge", event.reason_code),
+        make("span", "badge", event.actor)
+      );
+      const lead = make("p", "detail-lead", event.detail);
+      lead.append(make("span", "detail-zh", event.detail_zh));
+      root.append(badges, lead);
+
+      const whySection = make("section", "detail-section");
+      whySection.append(make("h3", "", "Why this happened / 原因"));
+      const why = make("div", "why-card");
+      why.append(
+        make("div", "mono", event.reason_code),
+        make("p", "", event.outcome === "blocked"
+          ? "This attempt remains in the audit trail. A later success would not delete or hide it. / 该阻止记录会永久保留，后续成功不会覆盖它。"
+          : "This result is bounded by the references below; it does not grant authority beyond this event. / 结果仅受以下显式引用约束。")
+      );
+      whySection.append(why);
+
+      const stateSection = make("section", "detail-section");
+      stateSection.append(make("h3", "", "State transition / 状态变化"));
+      const stateCard = make("div", "state-card state-grid");
+      stateCard.append(
+        make("div", "state-value", event.state_before),
+        make("div", "state-arrow", "→"),
+        make("div", "state-value", event.state_after)
+      );
+      stateSection.append(stateCard);
+
+      const refsSection = make("section", "detail-section");
+      refsSection.append(make("h3", "", "Recorded references / 显式引用"));
+      const groups = make("div", "ref-groups");
+      Object.entries(event.refs).forEach(([group, values]) => {
+        if (!values.length) return;
+        const block = make("div", "");
+        block.append(make("div", "ref-group-title", group));
+        const list = make("div", "ref-list");
+        values.forEach((value) => {
+          const chip = make("button", "ref-chip", value);
+          chip.type = "button";
+          chip.addEventListener("click", () => openTrace(value));
+          list.append(chip);
+        });
+        block.append(list);
+        groups.append(block);
+      });
+      refsSection.append(groups);
+
+      const integritySection = make("section", "detail-section");
+      integritySection.append(make("h3", "", "Projection self-consistency / 投影内部一致性"));
+      integritySection.append(
+        make("span", "hash-value", "previous projection " + event.previous_projection_hash),
+        make("span", "hash-value", "projection          " + event.projection_hash)
+      );
+
+      const raw = make("details", "raw");
+      const summary = make("summary", "", "Developer data / 开发者数据");
+      const pre = make("pre", "", JSON.stringify(event, null, 2));
+      raw.append(summary, pre);
+      root.append(whySection, stateSection, refsSection, integritySection, raw);
+    }
+
+    function switchTab(name) {
+      state.activeTab = name;
+      document.querySelectorAll(".tab").forEach((tab) => {
+        const active = tab.dataset.tab === name;
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+        tab.tabIndex = active ? 0 : -1;
+      });
+      const mapping = {
+        timeline: "timelinePanel",
+        trace: "tracePanel",
+        receipts: "receiptsPanel",
+        export: "exportPanel"
+      };
+      Object.entries(mapping).forEach(([key, id]) => {
+        byId(id).hidden = key !== name;
+      });
+      if (name === "trace" && selectedEvent()) {
+        byId("traceQuery").value = selectedEvent().record_id;
+        runTrace(selectedEvent().record_id);
+      }
+      if (name === "export") renderExport();
+    }
+
+    function allRefValues(event) {
+      return Object.values(event.refs).flat();
+    }
+
+    function sharedReferences(left, right) {
+      const rightRefs = new Set(allRefValues(right));
+      return [...new Set(allRefValues(left).filter((value) => rightRefs.has(value)))];
+    }
+
+    function traceCard(event, relation) {
+      const card = make("button", "trace-card");
+      card.type = "button";
+      card.append(
+        make("strong", "", event.summary),
+        make("span", "", "#" + event.sequence + " · " + event.reason_code + (relation ? " · " + relation : ""))
+      );
+      card.addEventListener("click", () => {
+        ensureEventVisible(event.record_id);
+        switchTab("timeline");
+        selectEvent(event.record_id);
+        focusSelectedRecord();
+      });
+      return card;
+    }
+
+    function runTrace(rawQuery) {
+      const query = String(rawQuery || "").trim();
+      const upstream = byId("traceUpstream");
+      const selected = byId("traceSelected");
+      const downstream = byId("traceDownstream");
+      upstream.replaceChildren();
+      selected.replaceChildren();
+      downstream.replaceChildren();
+      if (!query) {
+        setText("traceSummary", "Enter one recorded identifier / 输入一个已记录标识符");
+        return;
+      }
+
+      const anchor = state.data.events.find((event) => event.record_id === query);
+      if (!anchor) {
+        const matches = state.data.events.filter((event) => allRefValues(event).includes(query));
+        if (!matches.length) {
+          setText("traceSummary", "No record explicitly contains " + query + ". / 没有记录显式包含该标识符。");
+          return;
+        }
+        matches.sort((a, b) => a.sequence - b.sequence).forEach((event) => selected.append(traceCard(event, "contains " + query)));
+        upstream.append(make("p", "event-meta", "No causal upstream edge is inferred / 不推断因果上游边"));
+        downstream.append(make("p", "event-meta", "No causal downstream edge is inferred / 不推断因果下游边"));
+        setText("traceSummary", matches.length + " record(s) explicitly contain " + query + ". Their order is shown inside the matching lane; no anchor or causality was inferred. / 仅展示显式共同引用，不推断锚点或因果关系。");
+        return;
+      }
+
+      const related = state.data.events
+        .filter((candidate) => candidate.record_id === anchor.record_id || sharedReferences(anchor, candidate).length)
+        .sort((a, b) => a.sequence - b.sequence);
+      related.filter((event) => event.sequence < anchor.sequence).forEach((event) => {
+        upstream.append(traceCard(event, "shares " + sharedReferences(anchor, event).join(", ")));
+      });
+      selected.append(traceCard(anchor, "selected projection record"));
+      related.filter((event) => event.sequence > anchor.sequence).forEach((event) => {
+        downstream.append(traceCard(event, "shares " + sharedReferences(anchor, event).join(", ")));
+      });
+      if (!upstream.children.length) upstream.append(make("p", "event-meta", "No earlier co-reference / 无更早共同引用"));
+      if (!downstream.children.length) downstream.append(make("p", "event-meta", "No later co-reference / 无更晚共同引用"));
+      setText("traceSummary", related.length + " projection record(s) share a displayed identifier with " + query + ". Order is chronological only; complete replay and causality are not claimed. / 顺序仅表示时间先后，不宣称完整回放或因果关系。");
+    }
+
+    function openTrace(identifier) {
+      switchTab("trace");
+      byId("traceQuery").value = identifier;
+      runTrace(identifier);
+      byId("traceSummary").focus();
+      announce("Trace opened for " + identifier + " / 已打开追溯");
+    }
+
+    function renderReceipts() {
+      const root = byId("receiptList");
+      root.replaceChildren();
+      state.data.receipt_examples.forEach((receipt) => {
+        const card = make("article", "receipt-card");
+        card.append(make("p", "eyebrow", "NOT EXECUTED / 未执行"));
+        card.append(make("h3", "mono", receipt.example_receipt_id));
+        const summary = make("p", "", receipt.summary);
+        summary.append(make("span", "detail-zh", receipt.summary_zh));
+        card.append(summary);
+        const badges = make("div", "badge-row");
+        badges.append(
+          make("span", "badge warning", receipt.outcome),
+          make("span", "badge", receipt.provenance.kind),
+          make("span", "badge", receipt.provenance.trust)
+        );
+        card.append(badges);
+        const list = make("ul", "check-list");
+        receipt.planned_checks.forEach((check, index) => {
+          const item = make("li", "", check + " / " + receipt.planned_checks_zh[index]);
+          list.append(item);
+        });
+        card.append(list);
+        root.append(card);
+      });
+    }
+
+    function renderExport() {
+      if (!state.data) return;
+      const allowed = state.integrityValid === true;
+      byId("exportJson").disabled = !allowed;
+      byId("exportHtml").disabled = !allowed;
+      setText("exportSummary", allowed ? "Self-consistent synthetic fixture ready / 内部一致的合成夹具可导出" : "Integrity failed — export blocked / 一致性失败，禁止导出");
+      setText("exportMeta", state.data.events.length + " projection records · " + state.data.receipt_examples.length + " illustrative receipt examples · profile " + state.data.profile + " · generated " + state.data.generated_at);
+      setText("claimBoundary", state.data.claim_boundary + " / " + state.data.claim_boundary_zh);
+    }
+
+    async function exportVerified(format) {
+      const snapshot = state.data;
+      const generation = loadGeneration;
+      if (!snapshot || state.integrityValid !== true) return;
+      try {
+        const integrity = await verifyFixture(snapshot);
+        if (generation !== loadGeneration || state.data !== snapshot) {
+          if (document.body.dataset.selfTestRunning === "true") document.body.dataset.selfTestExportCanceled = "true";
+          announce("Export canceled because the fixture changed / 夹具已变化，导出取消");
+          return;
+        }
+        if (!integrity.valid) throw new Error(integrity.reason + " at " + integrity.recordId);
+        if (format === "json") {
+          download("tempo-audit-fixture.json", JSON.stringify(snapshot, null, 2) + "\n", "application/json");
+        } else {
+          download("tempo-audit-report.html", exportHtmlReport(snapshot), "text/html");
+        }
+      } catch (error) {
+        if (generation !== loadGeneration || state.data !== snapshot) {
+          if (document.body.dataset.selfTestRunning === "true") document.body.dataset.selfTestExportCanceled = "true";
+          announce("Export canceled because the fixture changed / 夹具已变化，导出取消");
+          return;
+        }
+        state.integrityValid = false;
+        renderMetrics();
+        renderExport();
+        announce("Export blocked: " + error.message + " / 导出已阻止");
+      }
+    }
+
+    function download(name, content, type) {
+      if (document.body.dataset.selfTestRunning === "true") {
+        const prior = document.body.dataset.selfTestDownloads || "";
+        document.body.dataset.selfTestDownloads = prior + "|" + name + ":" + type + ":" + content.length;
+        return;
+      }
+      const blob = new Blob([content], {type});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = name;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function exportHtmlReport(snapshot) {
+      const rows = snapshot.events.map((event) => "<tr><td>" + escapeHtml(event.sequence) + "</td><td><code>" + escapeHtml(event.timestamp) + "</code></td><td>" + escapeHtml(event.summary) + "<br><span>" + escapeHtml(event.summary_zh) + "</span></td><td>" + escapeHtml(event.outcome) + "</td><td><code>" + escapeHtml(event.reason_code) + "</code></td><td>" + escapeHtml(event.actor) + "</td><td><code>" + escapeHtml(event.state_before) + " → " + escapeHtml(event.state_after) + "</code></td></tr>").join("");
+      const examples = snapshot.receipt_examples.map((receipt) => "<li><code>" + escapeHtml(receipt.example_receipt_id) + "</code> — NOT EXECUTED — " + escapeHtml(receipt.summary) + " / " + escapeHtml(receipt.summary_zh) + "</li>").join("");
+      return "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>TEMPO synthetic audit projection</title><style>body{max-width:1180px;margin:48px auto;padding:0 24px;color:#17211d;font:15px/1.5 system-ui,sans-serif}h1{letter-spacing:-.04em}aside{padding:14px;background:#fff6db;border:1px solid #e0cfa1;border-radius:10px}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{border-bottom:1px solid #d9ddd7;padding:10px;text-align:left;vertical-align:top}th{font-size:12px;text-transform:uppercase;color:#66716b}code{font:12px ui-monospace,monospace}span{color:#66716b}</style><h1>TEMPO Audit trail / 审计轨迹</h1><aside><strong>Self-consistent synthetic projection · embedded hash only</strong><br>" + escapeHtml(snapshot.claim_boundary) + "<br>" + escapeHtml(snapshot.claim_boundary_zh) + "</aside><p>This HTML is a summary view, not an authoritative portable audit bundle. / 此 HTML 是摘要视图，不是权威审计 bundle。</p><p>Workspace: <code>" + escapeHtml(snapshot.workspace) + "</code><br>Projection head: <code>" + escapeHtml(snapshot.projection_checkpoint.head_hash) + "</code><br>Complete fixture hash: <code>" + escapeHtml(snapshot.projection_checkpoint.bundle_hash) + "</code></p><table><thead><tr><th>#</th><th>UTC</th><th>Record / 记录</th><th>Outcome</th><th>Reason</th><th>Actor</th><th>State</th></tr></thead><tbody>" + rows + "</tbody></table><h2>Illustrative receipt-shaped examples / 回执形态示例</h2><ul>" + examples + "</ul></html>";
+    }
+
+    function moveSelection(delta) {
+      if (state.activeTab !== "timeline" || !state.filtered.length) return;
+      const currentIndex = Math.max(0, state.filtered.findIndex((event) => event.record_id === state.selectedId));
+      const nextIndex = Math.min(state.filtered.length - 1, Math.max(0, currentIndex + delta));
+      selectEvent(state.filtered[nextIndex].record_id);
+      focusSelectedRecord();
+    }
+
+    function selectBoundary(position) {
+      if (!state.filtered.length) return;
+      const index = position === "start" ? 0 : state.filtered.length - 1;
+      selectEvent(state.filtered[index].record_id);
+      focusSelectedRecord();
+    }
+
+    function requireSelfTest(condition, message) {
+      if (!condition) throw new Error(message);
+    }
+
+    async function waitForSelfTest(predicate, message) {
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        if (predicate()) return;
+        await new Promise((resolve) => window.setTimeout(resolve, 10));
+      }
+      throw new Error(message);
+    }
+
+    function setControlForSelfTest(id, value, eventType) {
+      const control = byId(id);
+      control.value = value;
+      control.dispatchEvent(new Event(eventType, {bubbles: true}));
+    }
+
+    function assertNoOverflow(label) {
+      const documentOverflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      const bodyOverflow = document.body.scrollWidth - window.innerWidth;
+      requireSelfTest(documentOverflow <= 1 && bodyOverflow <= 1, label + " horizontal overflow: " + Math.max(documentOverflow, bodyOverflow));
+    }
+
+    async function runBrowserSelfTest() {
+      const output = byId("selfTestResult");
+      try {
+        document.body.dataset.selfTestRunning = "true";
+        document.body.dataset.selfTestDownloads = "";
+        requireSelfTest(state.integrityValid === true, "fixture integrity was not accepted");
+        requireSelfTest(byId("metricChain").textContent.trim() === "Self-consistent", "integrity metric mismatch");
+        let decimalLexemeRejected = false;
+        try {
+          assertIntegerJsonLexemes('{"schema_version":1.0}');
+        } catch (_error) {
+          decimalLexemeRejected = true;
+        }
+        requireSelfTest(decimalLexemeRejected, "decimal JSON lexeme was not rejected");
+        assertNoOverflow("timeline");
+
+        setControlForSelfTest("outcomeFilter", "blocked", "change");
+        requireSelfTest(document.querySelectorAll(".event-row").length === 3, "blocked filter mismatch");
+        setControlForSelfTest("searchInput", "NO_SUCH_PROJECTION_RECORD", "input");
+        requireSelfTest(document.querySelectorAll(".event-row").length === 0, "zero-result filter mismatch");
+        requireSelfTest(state.selectedId === null && byId("eventDetailHeading").textContent.includes("No matching"), "zero-result detail was not cleared");
+        byId("viewLatest").click();
+        requireSelfTest(state.filtered.length === 10 && state.selectedId === state.data.events.at(-1).record_id, "latest-event navigation did not clear excluding filters");
+        setControlForSelfTest("searchInput", "SCOPE_NOT_AUTHORIZED", "input");
+        requireSelfTest(document.querySelectorAll(".event-row").length === 1, "reason search mismatch");
+        byId("clearFilters").click();
+        requireSelfTest(document.querySelectorAll(".event-row").length === 10, "clear-filter listener mismatch");
+
+        const firstRow = document.querySelector(".event-row");
+        firstRow.click();
+        const refreshedFirstRow = document.querySelector(".event-row");
+        refreshedFirstRow.focus();
+        refreshedFirstRow.dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowDown", bubbles: true}));
+        requireSelfTest(state.selectedId === state.filtered[1].record_id && document.activeElement.dataset.recordId === state.selectedId, "timeline keyboard navigation mismatch");
+
+        const referenceChip = document.querySelector(".ref-chip");
+        requireSelfTest(referenceChip, "selected record exposed no reference chip");
+        referenceChip.click();
+        requireSelfTest(!byId("tracePanel").hidden && document.activeElement === byId("traceSummary"), "reference-to-trace focus mismatch");
+        assertNoOverflow("trace");
+        byId("traceQuery").value = "W-DEMO-0001";
+        byId("runTrace").click();
+        requireSelfTest(byId("traceSelected").children.length > 0, "trace projection is empty");
+        const traceCardNode = document.querySelector(".trace-card");
+        traceCardNode.click();
+        requireSelfTest(!byId("timelinePanel").hidden && document.activeElement.classList.contains("event-row"), "trace-to-timeline focus mismatch");
+
+        byId("tabTimeline").focus();
+        byId("tabTimeline").dispatchEvent(new KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true}));
+        requireSelfTest(!byId("tracePanel").hidden && document.activeElement === byId("tabTrace"), "tab keyboard navigation mismatch");
+        assertNoOverflow("trace after keyboard navigation");
+
+        byId("tabReceipts").click();
+        byId("tabReceipts").focus();
+        requireSelfTest(document.querySelectorAll(".receipt-card").length === 2, "receipt example count mismatch");
+        assertNoOverflow("receipt examples");
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: "e", bubbles: true}));
+        requireSelfTest(!byId("exportPanel").hidden, "global export shortcut mismatch");
+        requireSelfTest(!byId("exportJson").disabled && !byId("exportHtml").disabled, "export remained blocked");
+        delete document.body.dataset.selfTestExportCanceled;
+        byId("exportJson").click();
+        loadGeneration += 1;
+        await waitForSelfTest(
+          () => document.body.dataset.selfTestExportCanceled === "true",
+          "generation change did not cancel an in-flight export"
+        );
+        requireSelfTest(document.body.dataset.selfTestDownloads === "", "canceled export emitted an artifact");
+        byId("exportJson").click();
+        byId("exportHtml").click();
+        await waitForSelfTest(
+          () => document.body.dataset.selfTestDownloads.includes("tempo-audit-fixture.json") && document.body.dataset.selfTestDownloads.includes("tempo-audit-report.html"),
+          "export click listeners did not generate both artifacts"
+        );
+        assertNoOverflow("export");
+
+        byId("tabTimeline").click();
+        byId("clearFilters").click();
+        assertNoOverflow("restored timeline");
+        delete document.body.dataset.selfTestRunning;
+        document.body.dataset.selfTest = "passed";
+        document.body.dataset.selfTestViewport = window.innerWidth + "x" + window.innerHeight;
+        output.value = "AUDIT_CONSOLE_BROWSER_SELF_TEST_PASSED viewport=" + document.body.dataset.selfTestViewport;
+        output.textContent = output.value;
+      } catch (error) {
+        delete document.body.dataset.selfTestRunning;
+        document.body.dataset.selfTest = "failed";
+        document.body.dataset.selfTestViewport = window.innerWidth + "x" + window.innerHeight;
+        output.value = "AUDIT_CONSOLE_BROWSER_SELF_TEST_FAILED: " + error.message;
+        output.textContent = output.value;
+        console.error(output.value);
+      }
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => switchTab(tab.dataset.tab)));
+    document.querySelector(".tabs").addEventListener("keydown", (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const tabs = [...document.querySelectorAll(".tab")];
+      const current = tabs.indexOf(document.activeElement);
+      let next = current;
+      if (event.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+      if (event.key === 'ArrowRight') next = (current + 1) % tabs.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = tabs.length - 1;
+      tabs[next].focus();
+      switchTab(tabs[next].dataset.tab);
+    });
+    byId("timeline").addEventListener("keydown", (event) => {
+      if (!event.target.classList.contains("event-row")) return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        moveSelection(1);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        moveSelection(-1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        selectBoundary("start");
+      } else if (event.key === "End") {
+        event.preventDefault();
+        selectBoundary("end");
+      }
+    });
+    ["searchInput", "outcomeFilter", "actorFilter", "typeFilter"].forEach((id) => {
+      byId(id).addEventListener(id === "searchInput" ? "input" : "change", applyFilters);
+    });
+    byId("clearFilters").addEventListener("click", clearFilters);
+    byId("loadFixture").addEventListener("click", () => byId("fixturePicker").click());
+    byId("setupLoad").addEventListener("click", () => byId("fixturePicker").click());
+    byId("fixturePicker").addEventListener("change", (event) => loadPickedFile(event.target.files[0]));
+    byId("viewLatest").addEventListener("click", () => {
+      ensureEventVisible(state.data.events.at(-1).record_id);
+      switchTab("timeline");
+      selectEvent(state.data.events.at(-1).record_id);
+      byId("eventDetail").scrollIntoView({behavior: "smooth", block: "start"});
+      focusSelectedRecord(true);
+    });
+    byId("runTrace").addEventListener("click", () => runTrace(byId("traceQuery").value));
+    byId("traceQuery").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") runTrace(event.currentTarget.value);
+    });
+    byId("exportJson").addEventListener("click", () => void exportVerified("json"));
+    byId("exportHtml").addEventListener("click", () => void exportVerified("html"));
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const tag = document.activeElement && document.activeElement.tagName;
+      const typing = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
+      if (event.key === "/" && !typing) {
+        event.preventDefault();
+        byId("searchInput").focus();
+      } else if (!typing && event.key.toLowerCase() === "j") {
+        moveSelection(1);
+      } else if (!typing && event.key.toLowerCase() === "k") {
+        moveSelection(-1);
+      } else if (!typing && event.key.toLowerCase() === "e") {
+        switchTab("export");
+      }
+    });
+    loadAdjacentFixture();
+  </script>
+</body>
+</html>

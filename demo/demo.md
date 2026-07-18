@@ -10,7 +10,41 @@ python bin/tempo demo
 
 Use `python bin/tempo --json demo` for a machine-readable step report.
 
-## Expected story
+## Audit interaction prototype
+
+The read-only [audit console](audit-console.html) demonstrates the proposed
+`today -> timeline -> trace -> receipts -> export` journey with a synthetic,
+hash-chained fixture. It cannot read live authority, mutate TEMPO, or authorize
+work.
+
+Serve only the `demo/` directory locally so the browser can load the adjacent
+fixture:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1 --directory demo
+```
+
+Then open `http://127.0.0.1:8000/audit-console.html`. If the HTML is opened
+directly from disk, use **Load fixture / 载入夹具** and select
+`demo/audit-console.fixture.json`.
+
+Validate the fixture chain and static interaction contract with:
+
+```bash
+python demo/verify-audit-console.py
+python demo/verify-audit-console-browser.py
+```
+
+The browser check uses a locally installed Chromium-family browser, serves only
+the `demo/` directory on an ephemeral loopback port, and exercises both desktop
+and compact responsive viewports. It exits with warning code `4` when no
+supported browser is installed.
+
+## CLI judge demo expected story (`python bin/tempo demo`)
+
+This table describes the deterministic CLI judge demo, not execution performed
+by the audit console. The console displays only synthetic projection records
+and explicitly unexecuted receipt-shaped examples.
 
 | Beat | Expected result | What it proves |
 | --- | --- | --- |
