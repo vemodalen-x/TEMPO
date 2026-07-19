@@ -1,137 +1,60 @@
-# TEMPO — Devpost project description draft
-
-> Status: draft, not submitted. Resolve every item in `submission/checklist.md`
-> before copying this text to Devpost.
+# TEMPO — Devpost project description
 
 ## Tagline
 
-Turn “should we build?” into a testable, human-authorized workflow before coding
-agents spend the budget.
+Turn “should we build?” into a testable, human-authorized workflow before coding agents spend the budget.
 
 ## Inspiration
 
-Coding agents have compressed implementation time, but the business decision
-upstream is still messy. Teams often start an MVP before they agree on the
-target user, rank-1 uncertainty, evidence threshold, economics, cheaper
-experiment, budget, deadline, and kill condition. The result is fast output
-without a clear decision.
+Coding agents made implementation dramatically faster, but they did not make the decision to build any clearer. A team can now produce an MVP before it has agreed on the user, the riskiest assumption, the evidence threshold, the budget, or the condition that should stop the work. That is fast execution in the wrong direction.
 
-TEMPO treats that as a Work & Productivity problem. Research, product, finance,
-engineering, and the business owner need one reviewable path from question to
-evidence to bounded execution.
+I built TEMPO for the person supervising that work: a founder, product lead, or innovation owner who needs the speed of coding agents without turning a promising chat into unlimited authority.
 
 ## What it does
 
-TEMPO is a deterministic business-to-MVP governance workflow for product and
-innovation leads who supervise coding-agent work. A commercial planning
-provider can propose an opportunity, business model, hypothesis, and
-experiment. TEMPO normalizes that output as untrusted input, validates typed
-measurements plus declared provenance and freshness, evaluates hard blockers
-before scoring, and returns
-either the cheapest next experiment or eligibility for a human authorization
-decision.
+TEMPO is a deterministic business-to-MVP governance workflow. It turns a product question into a reviewable sequence:
 
-Eligibility is not permission. A separate warrant binds the exact assessment,
-charter, hypothesis set, evidence manifest, policy, scope, budget, and deadline.
-Every implementation start revalidates that contract. Expiry, revocation,
-protected-input drift, overspend, or an out-of-scope action fails closed.
+1. A planning provider proposes an opportunity, business model, ranked hypothesis, and cheapest useful experiment. TEMPO treats all provider and model output as untrusted advice.
+2. Evidence is checked for declared provenance, freshness, directness, measurements, and counterevidence. Hard blockers run before scoring.
+3. Readiness produces either an actionable next experiment or eligibility for a human decision. Eligibility never grants implementation authority.
+4. A separate, time-bounded human warrant binds the assessment, evidence manifest, charter, scope, lane, action, budget, deadline, and repository subject.
+5. Every implementation start is checked against that warrant. Out-of-scope work, drift, expiry, revocation, or an unmatched start fails closed.
+6. A serialized hash-chained ledger, durable checkpoint, verification receipts, and a verdict memo make the result inspectable. The final human verdict remains blank until a human signs it.
 
-The workflow records serialized hash-chained events with a durable local head,
-produces machine verification receipts, and compiles a verdict memo whose final
-decision remains human-owned.
+The result is useful even when the answer is “not yet”: TEMPO names the failed condition and the next experiment instead of returning a vague denial.
 
 ## How we built it
 
-The vertical slice is a dependency-light Python 3.10+ CLI with Draft 2020-12
-schemas, deterministic state transitions, evidence freshness/provenance checks,
-a hash-bound authorization gate, filesystem/action guards, a tamper-evident
-local ledger, and receipt generation. A clean-clone demo requires no credentials and
-uses visibly labeled fixtures. CI adds a digest-pinned, unprivileged,
-network-disabled container profile.
+The working vertical slice is a dependency-light Python 3.10+ CLI with JSON Schema contracts, deterministic state transitions, local file/action guards, evidence checks, authorization and revocation, receipt generation, and a credential-free judge demo. GitHub Actions runs the suite on Windows, macOS, and Linux and also runs a digest-pinned, unprivileged, network-disabled judge container.
 
-The design adapts selected governance mechanisms from the supplied TEMPO v1.3
-specification and the MIT-licensed VEMO framework at pinned commit
-`dc8e58a5e3d6710fc26331f1cbb17284d9071217`. Private course-derived material
-from the earlier commercial agent was not copied; only a normalized business
-workflow contract was retained.
+The final hardening pass addressed two subtle integrity failures. New human warrants now use a V2 subject digest bound to the exact Git origin, revision, commit, worktree, Git directory, and common directory; only explicit demo fixtures may use a non-Git subject. Ledger appends now roll back the exact fsynced event if checkpoint replacement fails, while a rollback that cannot be proved safe stays fail-closed. Failure-injection tests cover first append, existing history, late filesystem errors, rollback failure, origin changes, commit changes, branch changes, and a second worktree.
+
+TEMPO and the supporting product are deliberately independent repositories. [Understand Video](https://github.com/vemodalen-x/understand-video) is a downstream code-explanation pipeline built under TEMPO’s controls. It is evidence that the framework can govern a real product without importing or coupling the product code into TEMPO.
 
 ## How we used Codex and GPT-5.6
 
-Codex Desktop with GPT-5.6 in the user-selected Sol Ultra mode was the primary
-engineering environment for architecture, implementation, tests, and
-documentation under the repository's checked-in `AGENTS.md` policy. GPT-5.6
-materially reconciled the three design sources, surfaced the circularity between
-readiness and authorization, helped turn that decision into deterministic
-schemas and kernel logic, generated adversarial cases, shaped the credential-
-free demo, and tightened this submission narrative. Those contributions map to
-specific files in `submission/ai-usage.json`.
+Codex Desktop with GPT-5.6 in Sol Ultra mode was the primary engineering environment. It was used materially to inspect and reconcile the supplied TEMPO specification and the pinned MIT-licensed VEMO mechanisms, identify the circularity between readiness and authority, design deterministic contracts, implement the policy kernel, create adversarial failure tests, dogfood the framework against Understand Video, and prepare the judge journey.
 
-This is build-time GPT-5.6 use inside Codex. The release does not call the
-OpenAI API at runtime. Its provider adapter normalizes recorded JSON, and the
-`openai/gpt-5.6` sample proposal is explicitly a fixture rather than live API
-evidence. The final Devpost form still requires the exact session value returned
-by `/feedback` from the primary build task.
+GPT-5.6 is not a hidden runtime dependency. The released demo makes no OpenAI API call and needs no credentials. Recorded provider JSON is visibly labeled as fixture data. The file `submission/ai-usage.json` maps the build-time contributions to inspectable repository artifacts.
 
 ## Challenges
 
-The hardest boundary was separating a machine's readiness decision from a
-human's authority to spend implementation effort. Combining them creates a
-circular or self-authorizing system. We resolved that with two explicit states:
-`MVP_AUTHORIZED` means eligible for a human decision, while `build_allowed`
-becomes true only after a valid warrant and start check.
+The hardest design problem was preventing a system from authorizing itself. A high score or a model recommendation can say that an MVP looks worthwhile, but neither should be allowed to spend money or modify product code. TEMPO therefore separates readiness, human warrant, and exact implementation start into three independently checked facts.
 
-We also had to make negative outcomes productive. A denial names the reason,
-the governing artifact, the evidence gap, and one next action instead of only
-returning “no.” Finally, we kept the demo reproducible without disguising
-fixtures as external validation.
+The second challenge was making local evidence honest. A hash chain alone does not prove that its tail was not removed, so TEMPO adds a durable head checkpoint. A checkpoint alone is still not external notarization, so the documentation says exactly that. The demo signer proves mechanics only and cannot be mistaken for production identity.
 
 ## Accomplishments
 
-- One command demonstrates the full question-to-build control boundary.
-- Model-generated synthesis cannot satisfy the external-evidence requirement.
-- The local slice validates provenance declarations; it does not claim to
-  authenticate a user-supplied source in the real world.
-- Provider recommendations and high scores cannot create implementation
-  authority.
-- A valid build path is bounded by scope, lane, action, budget, deadline, and
-  protected hashes.
-- Drift and revocation persist terminal state in the warrant and a hash-bound
-  ledger event; truncating the ledger tail is detected by its durable head
-  checkpoint.
-- Receipts record the command and environment that actually ran.
-- The human verdict section cannot be filled by the compiler.
-
-## What we learned
-
-The best agent guardrail is sometimes a better team decision, not a more complex
-runtime sandbox. Governance becomes useful when a blocker shortens the next
-conversation: what do we need to learn, who owns it, what will it cost, and when
-will we decide?
-
-We also learned to separate evidence from inference. OpenAI's published UX and
-approval guidance supports clear hierarchy, user control, confirmation at
-consequential boundaries, and reproducible evals. It does not reveal private
-judging preferences, so we designed for those public principles instead of
-claiming inside knowledge.
+- One credential-free command demonstrates model advice, insufficient evidence, readiness without authority, blocked start, bounded start, scope denial, terminal drift, ledger verification, and a blank human verdict.
+- Provider recommendations and model-generated synthesis cannot create authority or satisfy the external-evidence requirement.
+- Stable exit codes distinguish pass, policy block, checker failure, and warning.
+- Repository identity and append failure modes have direct cross-platform regression coverage.
+- A separate downstream product proves the framework can govern useful delivery without repository coupling.
+- The project makes no claim of measured customer savings, production signing, live OpenAI runtime use, or external notarization.
 
 ## Potential impact
 
-The primary user is a product or innovation lead repeatedly handing ambiguous
-initiatives to coding agents; founders, research, finance, engineering, and
-agencies are secondary workflow participants. TEMPO could reduce avoidable
-implementation starts, make cross-functional handoffs explicit, and give the
-business owner a reviewable decision trail. A real-team pilot would measure
-avoidable starts blocked, decision-cycle duration, time to identify the next
-experiment, and scope/budget drift caught. We do not yet claim measured time or
-cost savings.
-
-## What's next
-
-Next steps are a small pilot measuring avoided starts and decision-cycle time,
-a separately reviewed OpenAI Responses API provider adapter, remote signer
-attestations, richer receipt verification, and a compact UI over the same
-deterministic kernel. None of those future items are presented as implemented in
-this submission.
+The first audience is product and innovation leads repeatedly handing ambiguous initiatives to coding agents. TEMPO can also give founders, research, finance, engineering, agencies, and security reviewers one shared decision trail. A real pilot would measure avoided implementation starts, decision-cycle duration, time to identify the next experiment, and budget or scope drift caught. Those outcomes remain testable hypotheses rather than invented results.
 
 ## Try it
 
@@ -140,10 +63,13 @@ git clone https://github.com/vemodalen-x/TEMPO.git
 cd TEMPO
 python bin/tempo selfcheck
 python bin/tempo demo
+python bin/tempo verify --level all
 ```
 
 Repository: [github.com/vemodalen-x/TEMPO](https://github.com/vemodalen-x/TEMPO)
 
-Video: `<public-youtube-url>`
+Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://github.com/vemodalen-x/understand-video)
+
+Video: [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I)
 
 Category: **Work & Productivity**

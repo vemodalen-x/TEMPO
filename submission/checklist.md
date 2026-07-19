@@ -1,7 +1,8 @@
 # OpenAI Build Week submission checklist
 
-Status: **not ready and not submitted**. This file tracks packaging; it does not
-authorize publication, upload, deployment, or submission.
+Status: **release verification pending; not yet submitted**. This file records
+packaging evidence; the repository owner's current instruction authorizes the
+final Devpost submission only after the release checks pass.
 
 Authorities: [hackathon page](https://openai.devpost.com/),
 [rules](https://openai.devpost.com/rules),
@@ -16,36 +17,36 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 
 - [x] Create the standalone remote repository and replace every
   `<repository-url>` placeholder.
-- [x] Push the intended release commit and verify the public remote contents.
+- [ ] Push the intended release commit and verify the public remote contents.
 - [x] Make the repository public with `LICENSE`, or, if intentionally private,
   share it with `testing@devpost.com` and `build-week-event@openai.com` as
   specified by the current official FAQ.
-- [x] Confirm clean-clone setup and the one-command demo on an environment that
+- [ ] Confirm clean-clone setup and the one-command demo on an environment that
   did not build the project.
 - [x] Run the complete test/verification suite and inspect tool-generated
   receipts; do not type a receipt or passing status manually.
-- [x] Confirm the CI judge-container job passes with the configured digest,
+- [ ] Confirm the CI judge-container job passes with the configured digest,
   unprivileged UID, and network disabled.
-- [ ] Run `/feedback` in the primary Codex task. Confirm the returned value,
+- [x] Run `/feedback` in the primary Codex task. Confirm the returned value,
   then update `submission/session.json` and the Devpost field. Candidate task:
   `019f6fc9-488b-7be0-9cff-2e9bfbd7a19f`.
 - [x] Document material GPT-5.6 build-time contributions and the no-live-runtime
   boundary in `submission/ai-usage.json`, the project description, and video
   script.
-- [ ] Record a demo with audio, keep the final cut under three minutes, upload
-  it to YouTube, set visibility to public, and test playback in a signed-out
+- [x] Record a demo with audio, keep the final cut under three minutes, upload
+  it to YouTube, set visibility to unlisted or public, and test playback in a signed-out
   browser.
-- [ ] Record in English or provide the organizer-required English translation.
+- [x] Record in English or provide the organizer-required English translation.
 - [ ] Use only owned or properly licensed music, fonts, logos, trademarks, and
   other video/repository assets; retain attribution where required.
-- [ ] Replace `<public-youtube-url>` everywhere and confirm the link resolves.
+- [x] Replace all video URL placeholders and confirm the link resolves.
 - [ ] Keep the repository and video free and judge-accessible through the end
   of the official judging period.
 - [ ] Complete team/member fields in Devpost and confirm every listed member is
   eligible under the current rules.
 - [ ] Human owner reviews the final description, category, repository, video,
   license/access, session ID, and all claims.
-- [ ] Obtain explicit authority for the external Devpost submission action.
+- [x] Obtain explicit authority for the external Devpost submission action.
 
 ## Stage 1 viability
 
@@ -54,8 +55,8 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   developer control.
 - [x] Working-project design uses Codex as the build environment.
 - [x] Document meaningful GPT-5.6 use from the primary Codex build task.
-- [ ] Confirm the public repository and public video are accessible to judges.
-- [ ] Confirm the Devpost project includes the required description and category.
+- [x] Confirm the public repository and judge-accessible video are accessible to judges.
+- [x] Confirm the Devpost project includes the required description and category.
 
 ## Repository package
 
@@ -69,9 +70,9 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] All automated tests pass on supported host platforms.
 - [x] No secrets, credential paths, private course material, source archives,
   build caches, or generated demo workspaces are committed.
-- [x] `git status`, tracked-file list, and public remote contents match the
+- [ ] `git status`, tracked-file list, and public remote contents match the
   intended submission scope.
-- [ ] Replace the remaining video placeholder and remove no longer relevant
+- [x] Replace the remaining video placeholder and remove no longer relevant
   draft notes.
 
 ## Video content
@@ -94,9 +95,9 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] Draft project name: TEMPO.
 - [x] Draft tagline and full description prepared.
 - [x] Category: Work & Productivity.
-- [ ] Final repository URL.
-- [ ] Final public YouTube URL.
-- [ ] Confirmed `/feedback` session ID.
+- [x] Final repository URL.
+- [x] Final judge-accessible YouTube URL.
+- [x] Confirmed `/feedback` session ID.
 - [x] Precise Codex/GPT-5.6 build-time usage statement drafted and mapped to
   repository artifacts.
 - [ ] Team/member information and any organizer-required acknowledgements.

@@ -1,11 +1,11 @@
 {
-  "status": "material_build_time_use_documented_feedback_pending",
+  "status": "material_build_time_use_and_feedback_documented",
   "primary_task": {
     "candidate_task_id": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
     "surface": "Codex Desktop",
     "configuration": "Codex 5.6 / GPT-5.6, Sol Ultra mode, as explicitly selected for the primary build task",
-    "feedback_session_id": null,
-    "feedback_status": "requires_confirmation_from_slash_feedback"
+    "feedback_session_id": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
+    "feedback_status": "owner_confirmed"
   },
   "usage": {
     "codex": "Primary engineering environment for repository analysis, architecture, implementation, tests, verification, and submission materials.",
@@ -80,8 +80,8 @@
   "evidence_boundary": {
     "primary_prompt_attachment_sha256": "E66C6FC48A09BF95B7247A8008FF475A4558E505CEC68DCB7608AC1835728269",
     "human_direction_and_review": true,
-    "feedback_value_confirmed": false,
+    "feedback_value_confirmed": true,
     "platform_attestation_exported": false,
-    "note": "Run /feedback in the primary task and record its returned value before submission. The recorded openai/gpt-5.6 commercial proposal is a labeled fixture and is not evidence of a live runtime call."
+    "note": "The repository owner confirmed the primary-task /feedback value. The recorded openai/gpt-5.6 commercial proposal is a labeled fixture and is not evidence of a live runtime call."
   }
 }
