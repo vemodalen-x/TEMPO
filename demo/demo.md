@@ -82,5 +82,7 @@ python bin/tempo verdict compile
 python bin/tempo submit-check
 ```
 
-`submit-check` is expected to remain blocked until the repository URL, public
-video, confirmed `/feedback` session ID, and final owner review are present.
+For the submitted release, `submit-check` is expected to pass: the public
+repository, judge-accessible unlisted video, confirmed `/feedback` session ID,
+and final owner review are present. A failure means the local submission
+package has drifted and should be investigated before any Devpost update.

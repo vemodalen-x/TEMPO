@@ -15,6 +15,36 @@ This repository is a hackathon vertical slice, not a production authorization
 service. It is local-first, dependency-light, and designed to be inspected by a
 judge from a clean clone without credentials.
 
+## Judge in 60 seconds
+
+From a clean clone, run one command:
+
+```bash
+python bin/tempo demo
+```
+
+In about two seconds, the deterministic journey shows four product outcomes:
+
+- `EXPERIMENT_REQUIRED` names the evidence gap and cheapest next experiment;
+- an evidence-backed case can become `MVP_AUTHORIZED` while
+  `build_allowed: false` keeps implementation blocked;
+- one bounded, warranted start succeeds while an unwarranted start and
+  protected-input drift fail closed; and
+- the ledger verifies, a machine receipt is produced, and the human verdict
+  section remains blank for its owner.
+
+Prefer a browser? The bilingual, read-only
+[audit console](demo/audit-console.html) turns the same control vocabulary into
+an inspectable `today -> timeline -> trace -> receipts -> export` experience.
+It uses an explicitly synthetic fixture and cannot authorize work. Serve the
+`demo/` directory with `python -m http.server 8000 --bind 127.0.0.1 --directory demo`,
+then open `http://127.0.0.1:8000/audit-console.html`.
+
+[![TEMPO bilingual audit console](docs/audit-console.png)](demo/audit-console.html)
+
+[Watch the 140-second judge video](https://youtu.be/3eIxgVo9z4I) or inspect the
+[latest public CI](https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml).
+
 ## Why it exists
 
 Coding agents can make implementation fast enough that teams start building
