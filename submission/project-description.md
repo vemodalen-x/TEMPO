@@ -34,7 +34,7 @@ next experiment, readiness remaining blocked without a warrant, one bounded
 start succeeding, out-of-scope work and protected-input drift failing closed,
 and a hash-chained ledger verifying while the human verdict stays blank.
 
-- [Open the live 60-second animated story](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html)
+- [Open the 60-second animated browser preview](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html)
 - [Preview the bilingual audit console](https://raw.githubusercontent.com/vemodalen-x/TEMPO/main/docs/audit-console.png)
 - [Watch the 140-second demo video](https://youtu.be/3eIxgVo9z4I)
 
@@ -83,7 +83,7 @@ blocked. The released [repository-subject tests](https://github.com/vemodalen-x/
 and [ledger failure tests](https://github.com/vemodalen-x/TEMPO/blob/main/tests/test_ledger.py)
 exercise both paths.
 
-The current release discovers 107 tests: 106 pass and one Windows
+Final verification discovered 107 tests: 106 pass and one Windows
 symlink-permission case is skipped where the OS denies symlink creation. The
 latest public CI is green across every required host and the network-disabled
 [judge container](https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml).
@@ -118,8 +118,8 @@ measure avoided implementation starts, decision-cycle time, time to the next
 useful experiment, and budget or scope drift caught.
 
 The broader opportunity is a shared decision trail for product, research,
-finance, engineering, agencies, and security reviewers before an increasingly
-fast coding agent spends the next unit of time or budget.
+finance, engineering, agencies, and security reviewers before a coding agent
+spends more time or budget.
 
 ## Links and version boundary
 

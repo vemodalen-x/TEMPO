@@ -42,7 +42,7 @@ then open `http://127.0.0.1:8000/audit-console.html`.
 
 [![TEMPO bilingual audit console](docs/audit-console.png)](docs/audit-console.png)
 
-[Open the live, self-contained 60-second judge story](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html) for an
+[Open the self-contained 60-second judge story in a browser preview](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html) for an
 animated overview with the key readiness, repository-binding, warrant, guard,
 and ledger code beside each step. It has no external assets or runtime
 dependencies. Its [source](docs/judge-story.html) remains reviewable in this
