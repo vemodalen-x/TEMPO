@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -13,6 +14,7 @@ from tempo.subject import repository_ref, validate_repository_ref
 from tempo.util import Workspace, sha256_json
 
 
+@unittest.skipUnless(shutil.which("git"), "Git executable required for subject integration tests")
 class SubjectBindingTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
