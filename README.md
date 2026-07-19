@@ -245,6 +245,8 @@ Requirement-to-code-to-proof links are in
 
 The public repository and judge video are available, the `/feedback` value is
 owner-confirmed, and the clean-clone journey plus cross-platform CI are
-verified. This file does not claim a Devpost submission before the external
-submission succeeds; the live Devpost project is authoritative. Packaging
-evidence is tracked in [submission/checklist.md](submission/checklist.md).
+verified. TEMPO was submitted to OpenAI Build Week as Devpost submission
+`1103781`; the [live project](https://devpost.com/software/understand-video) is
+authoritative. The URL retains an earlier slug, but the submitted project name,
+primary repository, description, and category are TEMPO. Packaging evidence is
+tracked in [submission/checklist.md](submission/checklist.md).

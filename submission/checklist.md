@@ -1,6 +1,6 @@
 # OpenAI Build Week submission checklist
 
-Status: **technical release verified; not yet submitted**. This file records
+Status: **submitted and read-back confirmed**. This file records
 packaging evidence; the repository owner's current instruction authorizes the
 final Devpost submission only after the release checks pass.
 
@@ -42,10 +42,10 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] Replace all video URL placeholders and confirm the link resolves.
 - [ ] Keep the repository and video free and judge-accessible through the end
   of the official judging period.
-- [ ] Complete team/member fields in Devpost and confirm every listed member is
-  eligible under the current rules.
-- [ ] Human owner reviews the final description, category, repository, video,
-  license/access, session ID, and all claims.
+- [x] Submit as an individual with Singapore as country of residence; no
+  additional team member is listed.
+- [x] Repository owner delegated the final description, category, repository,
+  video, access, session ID, and claim review in the current submission task.
 - [x] Obtain explicit authority for the external Devpost submission action.
 
 ## Stage 1 viability
@@ -100,8 +100,17 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] Confirmed `/feedback` session ID.
 - [x] Precise Codex/GPT-5.6 build-time usage statement drafted and mapped to
   repository artifacts.
-- [ ] Team/member information and any organizer-required acknowledgements.
-- [ ] Final preview checked for broken links, formatting, audio, and visibility.
+- [x] Team/member information and organizer-required submission fields completed.
+- [x] Final project read back after submission with repository, video, category,
+  and OpenAI Build Week association intact.
+
+## Submission receipt
+
+- Project ID: `1350574` (`TEMPO`; legacy URL slug `understand-video`).
+- Submission ID: `1103781`.
+- Submitted at: `2026-07-19T04:30:16.341Z`.
+- Live URL: <https://devpost.com/software/understand-video>.
+- The separate empty project `1351822` remains an unsubmitted pre-draft.
 
 ## Final command pass
 
@@ -116,4 +125,5 @@ python bin/tempo ledger verify
 python bin/tempo submit-check
 ```
 
-Only the human owner can mark the external publication/submission items done.
+Future accessibility is an ongoing owner obligation and remains unchecked until
+the judging period ends.
