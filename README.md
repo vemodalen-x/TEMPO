@@ -144,10 +144,19 @@ kept separate:
   exactly one matching `mvp_started` receipt bound to the active task, actor,
   session, lane, action, and repository workspace.
 
+New human warrants use a V2 repository subject digest bound to the exact Git
+origin, revision, commit, worktree root, Git directory, and common directory.
+Only explicitly labeled demo fixtures may use a non-Git subject. Historical
+signed references remain recorded for audit, but legacy path/name subjects
+cannot authorize new work and are never silently upgraded.
+
 Generated artifacts live under `plan/`; the append-only ledger API, durable
 head checkpoint, and receipts live under `.tempo/`. The checkpoint detects a
 missing or truncated ledger tail, but remains local-integrity evidence rather
-than an external notarization. JSON schemas live under `schemas/`.
+than an external notarization. If a checkpoint replacement fails during an
+append, TEMPO verifies and rolls back exactly the uncommitted tail while holding
+the ledger lock; an unsafe rollback fails closed. JSON schemas live under
+`schemas/`.
 
 ## Architecture
 
@@ -178,6 +187,7 @@ criteria mapping and the explicit boundary between published guidance and
 inferred OpenAI UX sensibilities.
 
 The maintained recording plan is [demo/video-script.md](demo/video-script.md).
+The judge video is available at [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I).
 
 ## Codex and GPT-5.6
 
@@ -189,11 +199,10 @@ architecture, deterministic contracts, adversarial cases, the fixture journey,
 and the submission narrative. The artifact-level map is recorded in
 `submission/ai-usage.json`.
 
-The submission must still use the exact session ID returned by `/feedback`;
-`submission/session.json` currently contains only the candidate primary task
-and requires that confirmation. The product runtime does not make a live
-GPT-5.6 call, and the recorded commercial proposal fixture is not presented as
-API evidence.
+The owner-confirmed `/feedback` session value is recorded in
+`submission/session.json`. The product runtime does not make a live GPT-5.6
+call, and the recorded commercial proposal fixture is not presented as API
+evidence.
 
 Codex accelerated four inspectable decisions in the primary build task:
 
@@ -234,8 +243,8 @@ Requirement-to-code-to-proof links are in
 
 ## Submission status
 
-This project has not been deployed, uploaded as a video, or submitted to
-Devpost. The public repository, clean-clone journey, and cross-platform CI are
-verified. Public YouTube URL, `/feedback` confirmation, and final owner review
-remain explicit blockers in
-[submission/checklist.md](submission/checklist.md).
+The public repository and judge video are available, the `/feedback` value is
+owner-confirmed, and the clean-clone journey plus cross-platform CI are
+verified. This file does not claim a Devpost submission before the external
+submission succeeds; the live Devpost project is authoritative. Packaging
+evidence is tracked in [submission/checklist.md](submission/checklist.md).

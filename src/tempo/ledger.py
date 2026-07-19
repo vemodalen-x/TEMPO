@@ -169,8 +169,14 @@ class Ledger:
             validate_data(self.workspace, "ledger-event", event, policy_block=False)
             self.path.parent.mkdir(parents=True, exist_ok=True)
             line = json.dumps(event, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+            encoded_line = line.encode("utf-8")
+            ledger_existed = self.path.exists()
+            start_offset = self.path.stat().st_size if ledger_existed else 0
+            checkpoint_before = (
+                self.checkpoint_path.read_bytes() if self.checkpoint_path.exists() else None
+            )
             with self.path.open("ab") as stream:
-                stream.write(line.encode("utf-8"))
+                stream.write(encoded_line)
                 stream.flush()
                 os.fsync(stream.fileno())
             # The event is durable before the checkpoint advances. A crash or
@@ -183,15 +189,79 @@ class Ledger:
             }
             try:
                 atomic_write_json(self.checkpoint_path, checkpoint)
-            except TempoError:
-                raise
-            except OSError as exc:
+            except Exception as exc:
+                # Some filesystems can report an error after a replace has
+                # already committed. In that case the event and checkpoint
+                # form one verified transaction and must not be duplicated by
+                # a caller retry.
+                if self._checkpoint_matches(checkpoint):
+                    return event
+                try:
+                    self._rollback_uncheckpointed_append(
+                        ledger_existed=ledger_existed,
+                        start_offset=start_offset,
+                        encoded_line=encoded_line,
+                        checkpoint_before=checkpoint_before,
+                    )
+                except Exception as rollback_error:
+                    raise CheckerFailure(
+                        "LEDGER_APPEND_ROLLBACK_FAILED",
+                        "The checkpoint update failed and the uncommitted ledger event "
+                        "could not be rolled back safely.",
+                        next_action="Do not use the ledger until its integrity is repaired.",
+                        details={"checkpoint_error": type(exc).__name__},
+                    ) from rollback_error
+                if isinstance(exc, TempoError):
+                    raise
+                if not isinstance(exc, OSError):
+                    raise
                 raise CheckerFailure(
                     "LEDGER_CHECKPOINT_WRITE_FAILED",
-                    f"Ledger event was persisted but its head checkpoint could not be updated: {exc}",
-                    next_action="Do not use the ledger until checkpoint integrity is repaired.",
+                    f"Ledger checkpoint update failed; the event was rolled back and can be retried: {exc}",
+                    next_action="Retry the append after resolving the checkpoint write failure.",
                 ) from exc
             return event
+
+    def _checkpoint_matches(self, expected: dict[str, Any]) -> bool:
+        """Return true only when the durable checkpoint is the attempted commit."""
+        try:
+            actual = json.loads(self.checkpoint_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            return False
+        return actual == expected
+
+    def _rollback_uncheckpointed_append(
+        self,
+        *,
+        ledger_existed: bool,
+        start_offset: int,
+        encoded_line: bytes,
+        checkpoint_before: bytes | None,
+    ) -> None:
+        """Remove exactly one known tail after a failed checkpoint transaction."""
+        if checkpoint_before is None:
+            if self.checkpoint_path.exists():
+                raise OSError("checkpoint changed during failed append")
+        elif (
+            not self.checkpoint_path.exists()
+            or self.checkpoint_path.read_bytes() != checkpoint_before
+        ):
+            raise OSError("checkpoint changed during failed append")
+
+        with self.path.open("r+b") as stream:
+            stream.seek(0, os.SEEK_END)
+            if stream.tell() != start_offset + len(encoded_line):
+                raise OSError("ledger length changed during failed append")
+            stream.seek(start_offset)
+            if stream.read() != encoded_line:
+                raise OSError("ledger tail changed during failed append")
+            stream.truncate(start_offset)
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        if not ledger_existed:
+            self.path.unlink()
+        self._read_verified_events()
 
     def _read_verified_events(self) -> list[dict[str, Any]]:
         ledger_exists = self.path.exists()

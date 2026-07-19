@@ -353,7 +353,7 @@ def _authorize_locked(
         "warrant_id": f"W-{uuid.uuid4().hex[:16].upper()}",
         "mvp_ref": charter["mvp_id"],
         "assessment_ref": assessment["assessment_id"],
-        "repository_ref": repository_ref(workspace),
+        "repository_ref": repository_ref(workspace, allow_fixture=demo_fixture),
         "state": "active",
         "signer_ref": signer_ref,
         "signer_session": signer_session,

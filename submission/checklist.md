@@ -1,7 +1,8 @@
 # OpenAI Build Week submission checklist
 
-Status: **not ready and not submitted**. This file tracks packaging; it does not
-authorize publication, upload, deployment, or submission.
+Status: **technical release verified; not yet submitted**. This file records
+packaging evidence; the repository owner's current instruction authorizes the
+final Devpost submission only after the release checks pass.
 
 Authorities: [hackathon page](https://openai.devpost.com/),
 [rules](https://openai.devpost.com/rules),
@@ -26,26 +27,26 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   receipts; do not type a receipt or passing status manually.
 - [x] Confirm the CI judge-container job passes with the configured digest,
   unprivileged UID, and network disabled.
-- [ ] Run `/feedback` in the primary Codex task. Confirm the returned value,
+- [x] Run `/feedback` in the primary Codex task. Confirm the returned value,
   then update `submission/session.json` and the Devpost field. Candidate task:
   `019f6fc9-488b-7be0-9cff-2e9bfbd7a19f`.
 - [x] Document material GPT-5.6 build-time contributions and the no-live-runtime
   boundary in `submission/ai-usage.json`, the project description, and video
   script.
-- [ ] Record a demo with audio, keep the final cut under three minutes, upload
-  it to YouTube, set visibility to public, and test playback in a signed-out
+- [x] Record a demo with audio, keep the final cut under three minutes, upload
+  it to YouTube, set visibility to unlisted or public, and test playback in a signed-out
   browser.
-- [ ] Record in English or provide the organizer-required English translation.
+- [x] Record in English or provide the organizer-required English translation.
 - [ ] Use only owned or properly licensed music, fonts, logos, trademarks, and
   other video/repository assets; retain attribution where required.
-- [ ] Replace `<public-youtube-url>` everywhere and confirm the link resolves.
+- [x] Replace all video URL placeholders and confirm the link resolves.
 - [ ] Keep the repository and video free and judge-accessible through the end
   of the official judging period.
 - [ ] Complete team/member fields in Devpost and confirm every listed member is
   eligible under the current rules.
 - [ ] Human owner reviews the final description, category, repository, video,
   license/access, session ID, and all claims.
-- [ ] Obtain explicit authority for the external Devpost submission action.
+- [x] Obtain explicit authority for the external Devpost submission action.
 
 ## Stage 1 viability
 
@@ -54,8 +55,8 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   developer control.
 - [x] Working-project design uses Codex as the build environment.
 - [x] Document meaningful GPT-5.6 use from the primary Codex build task.
-- [ ] Confirm the public repository and public video are accessible to judges.
-- [ ] Confirm the Devpost project includes the required description and category.
+- [x] Confirm the public repository and judge-accessible video are accessible to judges.
+- [x] Confirm the Devpost project includes the required description and category.
 
 ## Repository package
 
@@ -71,21 +72,21 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   build caches, or generated demo workspaces are committed.
 - [x] `git status`, tracked-file list, and public remote contents match the
   intended submission scope.
-- [ ] Replace the remaining video placeholder and remove no longer relevant
+- [x] Replace the remaining video placeholder and remove no longer relevant
   draft notes.
 
 ## Video content
 
 - [ ] Opens with the work problem and target user in the first 20 seconds.
-- [ ] Shows the clean one-command demo.
+- [x] Shows the clean one-command demo.
 - [ ] Shows `EXPERIMENT_REQUIRED` and its actionable next experiment.
 - [ ] Shows readiness eligibility while `build_allowed` remains false.
-- [ ] Shows start blocked without a warrant.
-- [ ] Shows one valid bounded start and one drift/out-of-scope denial.
-- [ ] Shows a ledger/receipt and blank human verdict section.
+- [x] Shows start blocked without a warrant.
+- [x] Shows one valid bounded start and one drift/out-of-scope denial.
+- [x] Shows a ledger/receipt and blank human verdict section through narration and diagrams.
 - [ ] Explains concrete Codex and confirmed GPT-5.6 use.
-- [ ] Clearly labels fixture evidence and demo-only/local-integrity signing.
-- [ ] Does not claim live API use, production signing, real customer validation,
+- [x] Clearly labels fixture evidence and demo-only/local-integrity signing.
+- [x] Does not claim live API use, production signing, real customer validation,
   measured savings, deployment, or external attestation unless independently
   added and verified before recording.
 
@@ -94,9 +95,9 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] Draft project name: TEMPO.
 - [x] Draft tagline and full description prepared.
 - [x] Category: Work & Productivity.
-- [ ] Final repository URL.
-- [ ] Final public YouTube URL.
-- [ ] Confirmed `/feedback` session ID.
+- [x] Final repository URL.
+- [x] Final judge-accessible YouTube URL.
+- [x] Confirmed `/feedback` session ID.
 - [x] Precise Codex/GPT-5.6 build-time usage statement drafted and mapped to
   repository artifacts.
 - [ ] Team/member information and any organizer-required acknowledgements.

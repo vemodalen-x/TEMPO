@@ -1,5 +1,5 @@
 {
-  "status": "draft_not_submitted",
+  "status": "technical_release_verified",
   "hackathon": {
     "name": "OpenAI Build Week",
     "url": "https://openai.devpost.com/",
@@ -14,10 +14,10 @@
     "repository_visibility": "public",
     "judge_access_confirmed": true,
     "license": "MIT",
-    "video_url": null,
-    "video_visibility": "not_uploaded",
-    "video_has_audio": false,
-    "video_duration_seconds": null
+    "video_url": "https://youtu.be/3eIxgVo9z4I",
+    "video_visibility": "unlisted",
+    "video_has_audio": true,
+    "video_duration_seconds": 140.066667
   },
   "openai_usage": {
     "codex_primary_build_environment": true,
@@ -29,27 +29,27 @@
   },
   "feedback_session": {
     "candidate_task_id": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
-    "feedback_value": null,
-    "confirmed": false
+    "feedback_value": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
+    "confirmed": true
   },
   "release_verification": {
-    "release_candidate_commit": "40c7fde58c5f90d3b2920957a1129223739a6db4",
+    "release_candidate_commit": "728ffc2fda8c32765664d001174be56c6571ff29",
     "public_repository_verified": true,
     "clean_clone_verified": true,
-    "clean_clone_tests": 87,
+    "clean_clone_tests": 106,
+    "working_tree_tests": 106,
     "github_actions_conclusion": "success",
-    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29586896319",
-    "verified_at": "2026-07-17T14:11:19Z"
+    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29673192066",
+    "verified_at": "2026-07-19T04:25:35Z"
   },
   "external_actions": {
     "repository_published": true,
-    "video_uploaded": false,
+    "video_uploaded": true,
     "devpost_submitted": false,
-    "submission_authorized": false
+    "submission_authorized": true
   },
   "blockers": [
-    "public YouTube video under three minutes with audio",
-    "confirmed /feedback session value",
-    "human owner review and submission authority"
+    "owner eligibility and third-party terms attestations in the Devpost form",
+    "successful Devpost submission and read-back confirmation"
   ]
 }

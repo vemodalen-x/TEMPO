@@ -10,7 +10,7 @@ from tests.support import SESSION, WorkspaceCase
 
 from tempo.errors import CheckerFailure, PolicyBlock
 from tempo.ledger import Ledger, ZERO_HASH
-from tempo.util import Workspace
+from tempo.util import Workspace, atomic_write_json
 
 
 def _append_worker(root: str, index: int) -> None:
@@ -149,7 +149,7 @@ class LedgerIntegrityTests(WorkspaceCase):
             event.verify()
         self.assertEqual(orphaned.exception.reason_code, "LEDGER_CHECKPOINT_ORPHANED")
 
-    def test_event_is_fsynced_before_checkpoint_update_is_attempted(self) -> None:
+    def test_checkpoint_failure_rolls_back_first_fsynced_event(self) -> None:
         observed: dict[str, bytes] = {}
 
         def fail_checkpoint(_path, _payload):
@@ -166,13 +166,61 @@ class LedgerIntegrityTests(WorkspaceCase):
         )
         self.assertTrue(observed["ledger"].endswith(b"\n"))
         self.assertEqual(len(observed["ledger"].splitlines()), 1)
+        self.assertFalse((self.root / ".tempo/ledger.jsonl").exists())
         self.assertFalse((self.root / ".tempo/ledger.head.json").exists())
-        with self.assertRaises(PolicyBlock) as fail_closed:
+        self.assertEqual(Ledger(self.workspace).verify()["events"], 0)
+        retried = self._append(1)
+        self.assertEqual(retried["sequence"], 1)
+
+    def test_checkpoint_failure_restores_existing_ledger_byte_for_byte(self) -> None:
+        first = self._append(1)
+        ledger_path = self.root / ".tempo/ledger.jsonl"
+        checkpoint_path = self.root / ".tempo/ledger.head.json"
+        ledger_before = ledger_path.read_bytes()
+        checkpoint_before = checkpoint_path.read_bytes()
+
+        with mock.patch(
+            "tempo.ledger.atomic_write_json",
+            side_effect=OSError("simulated checkpoint device failure"),
+        ):
+            with self.assertRaises(CheckerFailure) as caught:
+                self._append(2)
+
+        self.assertEqual(caught.exception.reason_code, "LEDGER_CHECKPOINT_WRITE_FAILED")
+        self.assertEqual(ledger_path.read_bytes(), ledger_before)
+        self.assertEqual(checkpoint_path.read_bytes(), checkpoint_before)
+        self.assertEqual(Ledger(self.workspace).verify()["head_hash"], first["event_hash"])
+        retried = self._append(2)
+        self.assertEqual(retried["sequence"], 2)
+        self.assertEqual(retried["previous_hash"], first["event_hash"])
+
+    def test_post_replace_error_does_not_duplicate_committed_event(self) -> None:
+        def commit_then_fail(path, payload):
+            atomic_write_json(path, payload)
+            raise OSError("simulated late filesystem error")
+
+        with mock.patch("tempo.ledger.atomic_write_json", side_effect=commit_then_fail):
+            event = self._append(1)
+
+        result = Ledger(self.workspace).verify()
+        self.assertEqual(result["events"], 1)
+        self.assertEqual(result["head_hash"], event["event_hash"])
+
+    def test_rollback_failure_has_distinct_fail_closed_outcome(self) -> None:
+        with mock.patch(
+            "tempo.ledger.atomic_write_json",
+            side_effect=OSError("simulated checkpoint device failure"),
+        ), mock.patch.object(
+            Ledger,
+            "_rollback_uncheckpointed_append",
+            side_effect=OSError("simulated rollback failure"),
+        ):
+            with self.assertRaises(CheckerFailure) as caught:
+                self._append(1)
+
+        self.assertEqual(caught.exception.reason_code, "LEDGER_APPEND_ROLLBACK_FAILED")
+        with self.assertRaises(PolicyBlock):
             Ledger(self.workspace).verify()
-        self.assertEqual(
-            fail_closed.exception.reason_code,
-            "LEDGER_CHECKPOINT_MISSING",
-        )
 
     def test_payload_tampering_breaks_chain(self) -> None:
         self._append(1)

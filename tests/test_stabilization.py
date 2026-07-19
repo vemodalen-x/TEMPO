@@ -37,8 +37,11 @@ class StabilizationContractTests(WorkspaceCase):
 
     def test_new_warrant_is_bound_to_canonical_repository_workspace(self) -> None:
         warrant = read_json(self.root / "plan/authorization-warrant.json")
-        self.assertEqual(warrant["repository_ref"], repository_ref(self.workspace))
-        self.assertTrue(warrant["repository_ref"].startswith("repository:"))
+        self.assertEqual(
+            warrant["repository_ref"],
+            repository_ref(self.workspace, allow_fixture=True),
+        )
+        self.assertTrue(warrant["repository_ref"].startswith("repository:v2:fixture:"))
 
     def test_missing_active_lease_keeps_authorization_but_disables_build(self) -> None:
         self.start_build()
