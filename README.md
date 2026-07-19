@@ -40,12 +40,13 @@ It uses an explicitly synthetic fixture and cannot authorize work. Serve the
 `demo/` directory with `python -m http.server 8000 --bind 127.0.0.1 --directory demo`,
 then open `http://127.0.0.1:8000/audit-console.html`.
 
-[![TEMPO bilingual audit console](docs/audit-console.png)](demo/audit-console.html)
+[![TEMPO bilingual audit console](docs/audit-console.png)](docs/audit-console.png)
 
-[Open the self-contained 60-second judge story](docs/judge-story.html) for an
+[Open the self-contained 60-second judge story in a browser preview](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html) for an
 animated overview with the key readiness, repository-binding, warrant, guard,
 and ledger code beside each step. It has no external assets or runtime
-dependencies.
+dependencies. Its [source](docs/judge-story.html) remains reviewable in this
+repository.
 
 [Watch the 140-second judge video](https://youtu.be/3eIxgVo9z4I) or inspect the
 [latest public CI](https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml).
