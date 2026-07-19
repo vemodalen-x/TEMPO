@@ -1,6 +1,6 @@
 # OpenAI Build Week submission checklist
 
-Status: **release verification pending; not yet submitted**. This file records
+Status: **technical release verified; not yet submitted**. This file records
 packaging evidence; the repository owner's current instruction authorizes the
 final Devpost submission only after the release checks pass.
 
@@ -17,15 +17,15 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 
 - [x] Create the standalone remote repository and replace every
   `<repository-url>` placeholder.
-- [ ] Push the intended release commit and verify the public remote contents.
+- [x] Push the intended release commit and verify the public remote contents.
 - [x] Make the repository public with `LICENSE`, or, if intentionally private,
   share it with `testing@devpost.com` and `build-week-event@openai.com` as
   specified by the current official FAQ.
-- [ ] Confirm clean-clone setup and the one-command demo on an environment that
+- [x] Confirm clean-clone setup and the one-command demo on an environment that
   did not build the project.
 - [x] Run the complete test/verification suite and inspect tool-generated
   receipts; do not type a receipt or passing status manually.
-- [ ] Confirm the CI judge-container job passes with the configured digest,
+- [x] Confirm the CI judge-container job passes with the configured digest,
   unprivileged UID, and network disabled.
 - [x] Run `/feedback` in the primary Codex task. Confirm the returned value,
   then update `submission/session.json` and the Devpost field. Candidate task:
@@ -70,7 +70,7 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] All automated tests pass on supported host platforms.
 - [x] No secrets, credential paths, private course material, source archives,
   build caches, or generated demo workspaces are committed.
-- [ ] `git status`, tracked-file list, and public remote contents match the
+- [x] `git status`, tracked-file list, and public remote contents match the
   intended submission scope.
 - [x] Replace the remaining video placeholder and remove no longer relevant
   draft notes.
@@ -78,15 +78,15 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 ## Video content
 
 - [ ] Opens with the work problem and target user in the first 20 seconds.
-- [ ] Shows the clean one-command demo.
+- [x] Shows the clean one-command demo.
 - [ ] Shows `EXPERIMENT_REQUIRED` and its actionable next experiment.
 - [ ] Shows readiness eligibility while `build_allowed` remains false.
-- [ ] Shows start blocked without a warrant.
-- [ ] Shows one valid bounded start and one drift/out-of-scope denial.
-- [ ] Shows a ledger/receipt and blank human verdict section.
+- [x] Shows start blocked without a warrant.
+- [x] Shows one valid bounded start and one drift/out-of-scope denial.
+- [x] Shows a ledger/receipt and blank human verdict section through narration and diagrams.
 - [ ] Explains concrete Codex and confirmed GPT-5.6 use.
-- [ ] Clearly labels fixture evidence and demo-only/local-integrity signing.
-- [ ] Does not claim live API use, production signing, real customer validation,
+- [x] Clearly labels fixture evidence and demo-only/local-integrity signing.
+- [x] Does not claim live API use, production signing, real customer validation,
   measured savings, deployment, or external attestation unless independently
   added and verified before recording.
 

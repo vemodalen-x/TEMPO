@@ -1,5 +1,5 @@
 {
-  "status": "release_verification_pending",
+  "status": "technical_release_verified",
   "hackathon": {
     "name": "OpenAI Build Week",
     "url": "https://openai.devpost.com/",
@@ -33,14 +33,14 @@
     "confirmed": true
   },
   "release_verification": {
-    "release_candidate_commit": null,
+    "release_candidate_commit": "728ffc2fda8c32765664d001174be56c6571ff29",
     "public_repository_verified": true,
-    "clean_clone_verified": false,
-    "clean_clone_tests": null,
-    "working_tree_tests": 104,
-    "github_actions_conclusion": "pending",
-    "github_actions_run": null,
-    "verified_at": null
+    "clean_clone_verified": true,
+    "clean_clone_tests": 106,
+    "working_tree_tests": 106,
+    "github_actions_conclusion": "success",
+    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29673192066",
+    "verified_at": "2026-07-19T04:25:35Z"
   },
   "external_actions": {
     "repository_published": true,
@@ -49,7 +49,7 @@
     "submission_authorized": true
   },
   "blockers": [
-    "final release commit clean-clone and GitHub Actions verification",
+    "owner eligibility and third-party terms attestations in the Devpost form",
     "successful Devpost submission and read-back confirmation"
   ]
 }

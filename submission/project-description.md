@@ -72,4 +72,8 @@ Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://g
 
 Video: [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I)
 
+The video demonstrates the public `4a73350` baseline. The final release candidate
+`728ffc2` adds Git-subject and ledger failure-atomicity hardening without changing
+the judge journey shown in the video.
+
 Category: **Work & Productivity**
