@@ -84,6 +84,14 @@ This repository does **not** claim measured time or cost savings; avoided
 starts, decision-cycle time, next-experiment latency, and drift detection are
 the explicit metrics for a real-team pilot.
 
+TEMPO does have one narrower internal dogfood result. While building the
+independent Understand Video product, preserved single-founder governance
+workspaces recorded repeated readiness blocks, one fail-closed revocation on
+`START_LEDGER_SCHEMA_FAILURE`, then one valid recovery start and 38 bounded
+lease rotations. The [case study](understand-video-dogfood.md) publishes the
+derived counts, ledger hashes, public product commits, and limitations. It is
+process evidence, not an independent customer outcome.
+
 ### Quality of idea
 
 Common coding-agent permissions begin after a task is accepted. Chat approval
