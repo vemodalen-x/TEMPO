@@ -60,7 +60,8 @@ The original source ledgers remain local and unpublished so the downstream
 product repository stays independent of the governance workspace. Their hashes
 make this derived summary stable, but a public reader cannot independently
 replay those private ledgers. The dogfood also used earlier TEMPO baselines
-(`4afc6a3` and the `4a73350` product target), not the final `7d320b5` release.
+(`4afc6a3` and the `4a73350` product target), not the final public release
+(`7cfa656`; executable hardening baseline `0edefe3`).
 Understand Video's media receipts are explicitly fixture-mode and
 `authoritative: false`; they are not treated as authoritative TEMPO receipts.
 
