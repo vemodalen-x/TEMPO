@@ -1,8 +1,7 @@
 # OpenAI Build Week submission checklist
 
-Status: **submitted and read-back confirmed**. This file records
-packaging evidence; the repository owner's current instruction authorizes the
-final Devpost submission only after the release checks pass.
+Status: **submitted and read-back confirmed**. This file records packaging and
+release evidence for the published entry.
 
 Authorities: [hackathon page](https://openai.devpost.com/),
 [rules](https://openai.devpost.com/rules),
@@ -15,8 +14,8 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 
 ## Hard blockers
 
-- [x] Create the standalone remote repository and replace every
-  `<repository-url>` placeholder.
+- [x] Create the standalone remote repository and resolve the public repository
+  URL.
 - [x] Push the intended release commit and verify the public remote contents.
 - [x] Make the repository public with `LICENSE`, or, if intentionally private,
   share it with `testing@devpost.com` and `build-week-event@openai.com` as
@@ -27,9 +26,8 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   receipts; do not type a receipt or passing status manually.
 - [x] Confirm the CI judge-container job passes with the configured digest,
   unprivileged UID, and network disabled.
-- [x] Run `/feedback` in the primary Codex task. Confirm the returned value,
-  then update `submission/session.json` and the Devpost field. Candidate task:
-  `019f6fc9-488b-7be0-9cff-2e9bfbd7a19f`.
+- [x] Run `/feedback` in the primary Codex task and record the owner-confirmed
+  value in `submission/session.json` and the Devpost field.
 - [x] Document material GPT-5.6 build-time contributions and the no-live-runtime
   boundary in `submission/ai-usage.json`, the project description, and video
   script.
@@ -71,12 +69,12 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 - [x] Credential-free demo instructions present.
 - [x] Security, sandbox, and traceability documents present.
 - [x] All automated tests pass on supported host platforms.
-- [x] No secrets, credential paths, private course material, source archives,
-  build caches, or generated demo workspaces are committed.
+- [x] No live secrets, credential values, private source archives, build
+  caches, generated demo workspaces, or absolute local paths remain in the
+  release tree.
 - [x] `git status`, tracked-file list, and public remote contents match the
   intended submission scope.
-- [x] Replace the remaining video placeholder and remove no longer relevant
-  draft notes.
+- [x] Resolve the video URL and remove no-longer-relevant draft notes.
 
 ## Video content
 
@@ -97,8 +95,8 @@ the authoritative executable proof for `EXPERIMENT_REQUIRED`, readiness while
 
 ## Devpost fields
 
-- [x] Draft project name: TEMPO.
-- [x] Draft tagline and full description prepared.
+- [x] Final project name: TEMPO.
+- [x] Final tagline and full description published.
 - [x] Category: Work & Productivity.
 - [x] Final repository URL.
 - [x] Final judge-accessible YouTube URL.
@@ -115,7 +113,18 @@ the authoritative executable proof for `EXPERIMENT_REQUIRED`, readiness while
 - Submission ID: `1103781`.
 - Submitted at: `2026-07-19T04:30:16.341Z`.
 - Live URL: <https://devpost.com/software/understand-video>.
-- The separate empty project `1351822` remains an unsubmitted pre-draft.
+
+## Final release verification
+
+- Verified code baseline: `0edefe3eb57fc1516e61ea674037b54c6271ffbd`.
+- Tests: 107 discovered, 106 passed, 1 platform-permission skip.
+- Latest baseline CI: <https://github.com/vemodalen-x/TEMPO/actions/runs/29674368125>.
+- `selfcheck`, `demo`, `verify --level all`, `ledger verify`, and
+  `submit-check` passed from the public release tree.
+- Video baseline: `4a73350f6eefff80b11d862a5ac65b7194530442`;
+  the newer code-only hardening is disclosed in the description.
+- Detailed machine-readable record:
+  [`submission/release-verification.json`](release-verification.json).
 
 ## Final command pass
 

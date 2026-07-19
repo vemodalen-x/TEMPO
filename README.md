@@ -42,6 +42,11 @@ then open `http://127.0.0.1:8000/audit-console.html`.
 
 [![TEMPO bilingual audit console](docs/audit-console.png)](demo/audit-console.html)
 
+[Open the self-contained 60-second judge story](docs/judge-story.html) for an
+animated overview with the key readiness, repository-binding, warrant, guard,
+and ledger code beside each step. It has no external assets or runtime
+dependencies.
+
 [Watch the 140-second judge video](https://youtu.be/3eIxgVo9z4I) or inspect the
 [latest public CI](https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml).
 
@@ -229,7 +234,7 @@ The judge video is available at [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9
 
 ## Codex and GPT-5.6
 
-Codex Desktop with GPT-5.6 in the user-selected Sol Ultra mode is the primary
+Codex Desktop with GPT-5.6 in Sol Ultra mode is the primary
 build environment used to create and test this repository under `AGENTS.md`.
 This is meaningful **build-time** model use, not a decorative label: GPT-5.6
 materially contributed to source reconciliation, the readiness/authority
@@ -245,7 +250,7 @@ evidence.
 Codex accelerated four inspectable decisions in the primary build task:
 
 - reconciled the supplied TEMPO specification, pinned VEMO mechanisms, and the
-  earlier commercial-agent contract without copying private course content;
+  earlier commercial-planning contract while preserving source boundaries;
 - identified the circularity between readiness and authorization and captured
   the two-stage resolution in ADR 0001;
 - changed the product framing and config to Work & Productivity after the owner

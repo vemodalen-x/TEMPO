@@ -89,6 +89,11 @@ it cannot read live authority or authorize work. Its fixture and browser
 contracts are independently verified by `demo/verify-audit-console.py` and
 `demo/verify-audit-console-browser.py`.
 
+For a faster conceptual tour, open `docs/judge-story.html` directly from the
+clone. The self-contained page animates the workflow and places the released
+readiness, repository-binding, warrant, guard, and ledger code beside each
+step.
+
 Repository: [github.com/vemodalen-x/TEMPO](https://github.com/vemodalen-x/TEMPO)
 
 Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://github.com/vemodalen-x/understand-video)
@@ -96,9 +101,11 @@ Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://g
 Video: [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I)
 
 The video demonstrates the public `4a73350` graph baseline, including the
-bilingual audit console. The verified TEMPO release `7d320b5` adds V2
-Git-subject binding and ledger failure-atomicity hardening without changing the
+bilingual audit console. The verified TEMPO code baseline `0edefe3` adds V2
+Git-subject binding, ledger failure-atomicity hardening, judge-experience
+polish, and limitation-labeled internal dogfood evidence without changing the
 governed journey shown in the video. The repository and green CI are
-authoritative for the final code.
+authoritative for the final code; the video baseline is stated rather than
+silently presented as the latest commit.
 
 Category: **Work & Productivity**

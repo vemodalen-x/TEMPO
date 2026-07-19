@@ -1,0 +1,45 @@
+{
+  "record_type": "superseding_release_verification",
+  "recorded_at": "2026-07-19T06:53:34Z",
+  "repository": "https://github.com/vemodalen-x/TEMPO",
+  "verified_code_commit": "0edefe3eb57fc1516e61ea674037b54c6271ffbd",
+  "working_tree": {
+    "branch": "main",
+    "upstream": "origin/main",
+    "ahead": 0,
+    "behind": 0
+  },
+  "commands": [
+    "python bin/tempo selfcheck",
+    "python bin/tempo demo",
+    "python bin/tempo verify --level all",
+    "python bin/tempo ledger verify",
+    "python bin/tempo submit-check",
+    "python -m unittest discover -s tests -t . -v"
+  ],
+  "tests": {
+    "discovered": 107,
+    "passed": 106,
+    "skipped": 1,
+    "failed": 0,
+    "skip_reason": "Windows symlink creation permission unavailable"
+  },
+  "github_actions": {
+    "conclusion": "success",
+    "run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29674368125"
+  },
+  "video": {
+    "url": "https://youtu.be/3eIxgVo9z4I",
+    "duration_seconds": 140.066667,
+    "source_commit": "4a73350f6eefff80b11d862a5ac65b7194530442",
+    "access_verified": true,
+    "scope_note": "The video shows the governed journey at its disclosed source commit. The repository and green CI are authoritative for later hardening."
+  },
+  "submission": {
+    "project_id": 1350574,
+    "submission_id": 1103781,
+    "url": "https://devpost.com/software/understand-video",
+    "status": "Submitted"
+  },
+  "history_policy": "Signer-owned governance history is preserved. This record supersedes stale release-status metadata without rewriting signed records."
+}
