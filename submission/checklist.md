@@ -78,7 +78,7 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 
 ## Video content
 
-- [x] The 140-second cut opens with the work problem and explains TEMPO's
+- [x] The 155-second cut opens with the work problem and explains TEMPO's
   evidence, readiness, authorization, denial, ledger, and verdict journey.
 - [x] The cut includes audio, safe-area English captions, real terminal output,
   and an explicit fixture/local-integrity claim boundary.
@@ -116,13 +116,13 @@ the authoritative executable proof for `EXPERIMENT_REQUIRED`, readiness while
 
 ## Final release verification
 
-- Verified code baseline: `0edefe3eb57fc1516e61ea674037b54c6271ffbd`.
+- Verified code baseline: `262816ec27e2a85a00c318b2489df51adf26cca2`.
 - Tests: 107 discovered, 106 passed, 1 platform-permission skip.
-- Latest baseline CI: <https://github.com/vemodalen-x/TEMPO/actions/runs/29674368125>.
+- Latest baseline CI: <https://github.com/vemodalen-x/TEMPO/actions/runs/29678398194>.
 - `selfcheck`, `demo`, `verify --level all`, `ledger verify`, and
   `submit-check` passed from the public release tree.
-- Video baseline: `4a73350f6eefff80b11d862a5ac65b7194530442`;
-  the newer code-only hardening is disclosed in the description.
+- Video baseline: `262816ec27e2a85a00c318b2489df51adf26cca2`; the final
+  155-second public cut is <https://youtu.be/CbfAwNdwy5c>.
 - Detailed machine-readable record:
   [`submission/release-verification.json`](release-verification.json).
 

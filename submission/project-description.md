@@ -36,7 +36,7 @@ and a hash-chained ledger verifying while the human verdict stays blank.
 
 - [Open the 60-second animated browser preview](https://htmlpreview.github.io/?https://github.com/vemodalen-x/TEMPO/blob/main/docs/judge-story.html)
 - [Preview the bilingual audit console](https://raw.githubusercontent.com/vemodalen-x/TEMPO/main/docs/audit-console.png)
-- [Watch the 140-second demo video](https://youtu.be/3eIxgVo9z4I)
+- [Watch the 155-second demo video](https://youtu.be/CbfAwNdwy5c)
 
 The browser console is deliberately read-only and uses a clearly labeled
 synthetic fixture. It demonstrates the review experience; it cannot authorize
@@ -125,12 +125,12 @@ spends more time or budget.
 
 - Competition repository: https://github.com/vemodalen-x/TEMPO
 - Supporting downstream proof: https://github.com/vemodalen-x/understand-video
-- Video: https://youtu.be/3eIxgVo9z4I
-- CI: https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml
+- Video: https://youtu.be/CbfAwNdwy5c
+- CI: https://github.com/vemodalen-x/TEMPO/actions/runs/29678398194
 
-The video explains the public `4a73350` graph baseline. The executable hardening
-baseline is `0edefe3`; later public commits add judge-facing documentation and
-release sanitization without changing the governed journey. GitHub `main` and
-green CI are authoritative for the final code.
+The video is filmed against public commit
+`262816ec27e2a85a00c318b2489df51adf26cca2` and CI run `29678398194`. Earlier
+graph and hardening baselines remain in the repository's provenance; GitHub
+`main` and green CI are authoritative for the final code.
 
 Category: **Work & Productivity**

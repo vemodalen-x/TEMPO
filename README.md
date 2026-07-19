@@ -48,8 +48,8 @@ and ledger code beside each step. It has no external assets or runtime
 dependencies. Its [source](docs/judge-story.html) remains reviewable in this
 repository.
 
-[Watch the 140-second judge video](https://youtu.be/3eIxgVo9z4I) or inspect the
-[latest public CI](https://github.com/vemodalen-x/TEMPO/actions/workflows/ci.yml).
+[Watch the 155-second judge video](https://youtu.be/CbfAwNdwy5c) or inspect the
+[verified public CI run](https://github.com/vemodalen-x/TEMPO/actions/runs/29678398194).
 
 ## Why it exists
 
@@ -231,7 +231,7 @@ criteria mapping and the explicit boundary between published guidance and
 inferred OpenAI UX sensibilities.
 
 The maintained recording plan is [demo/video-script.md](demo/video-script.md).
-The judge video is available at [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I).
+The judge video is available at [youtu.be/CbfAwNdwy5c](https://youtu.be/CbfAwNdwy5c).
 
 ## Codex and GPT-5.6
 

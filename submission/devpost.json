@@ -7,18 +7,19 @@
   },
   "project": {
     "name": "TEMPO",
-    "tagline": "Turn should-we-build into a testable, human-authorized workflow before coding agents spend the budget.",
+    "tagline": "Turn \u201cshould we build?\u201d into evidence, a human decision, and a bounded start.",
     "category": "Work & Productivity",
     "description_file": "submission/project-description.md",
     "repository_url": "https://github.com/vemodalen-x/TEMPO",
     "repository_visibility": "public",
     "judge_access_confirmed": true,
     "license": "MIT",
-    "video_url": "https://youtu.be/3eIxgVo9z4I",
-    "video_visibility": "unlisted",
+    "video_url": "https://youtu.be/CbfAwNdwy5c",
+    "video_visibility": "public",
     "video_has_audio": true,
-    "video_duration_seconds": 140.066667,
-    "video_source_commit": "4a73350f6eefff80b11d862a5ac65b7194530442"
+    "video_duration_seconds": 155.0,
+    "video_sha256": "e9bd3ea7345939e764da8ec94f4e7217961cb342c12daa5dffcd6f9f78a60a7e",
+    "video_source_commit": "262816ec27e2a85a00c318b2489df51adf26cca2"
   },
   "openai_usage": {
     "codex_primary_build_environment": true,
@@ -34,18 +35,18 @@
     "confirmed": true
   },
   "release_verification": {
-    "verification_scope": "code baseline before documentation-only finalization",
-    "release_candidate_commit": "0edefe3eb57fc1516e61ea674037b54c6271ffbd",
-    "clean_clone_source_commit": "0edefe3eb57fc1516e61ea674037b54c6271ffbd",
+    "verification_scope": "final filmed code baseline before submission-metadata refresh",
+    "release_candidate_commit": "262816ec27e2a85a00c318b2489df51adf26cca2",
+    "clean_clone_source_commit": "262816ec27e2a85a00c318b2489df51adf26cca2",
     "public_repository_verified": true,
     "clean_clone_verified": true,
     "clean_clone_tests": 106,
     "working_tree_tests": 106,
     "github_actions_conclusion": "success",
-    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29674368125",
+    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29678398194",
     "discovered_tests": 107,
     "skipped_tests": 1,
-    "verified_at": "2026-07-19T06:53:34Z"
+    "verified_at": "2026-07-19T13:41:09Z"
   },
   "submission": {
     "challenge_slug": "openai",
