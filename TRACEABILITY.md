@@ -34,7 +34,7 @@ run the listed command and inspect the generated receipt or exit code.
   `dc8e58a5e3d6710fc26331f1cbb17284d9071217`; see
   `THIRD_PARTY_NOTICES.md`.
 - The earlier commercial-agent workflow is reduced to a normalized contract.
-  Private course-derived content is not copied into this repository.
+  Non-redistributable source content is not copied into this repository.
 
 See `docs/source-analysis/` for hashes, version distinctions, conflicts, and
 Windows-specific baseline limitations.

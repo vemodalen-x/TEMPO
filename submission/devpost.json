@@ -17,7 +17,8 @@
     "video_url": "https://youtu.be/3eIxgVo9z4I",
     "video_visibility": "unlisted",
     "video_has_audio": true,
-    "video_duration_seconds": 140.066667
+    "video_duration_seconds": 140.066667,
+    "video_source_commit": "4a73350f6eefff80b11d862a5ac65b7194530442"
   },
   "openai_usage": {
     "codex_primary_build_environment": true,
@@ -33,15 +34,18 @@
     "confirmed": true
   },
   "release_verification": {
-    "release_candidate_commit": "7d320b5d486db29828db901d6869990ac775e010",
-    "clean_clone_source_commit": "7d320b5d486db29828db901d6869990ac775e010",
+    "verification_scope": "code baseline before documentation-only finalization",
+    "release_candidate_commit": "0edefe3eb57fc1516e61ea674037b54c6271ffbd",
+    "clean_clone_source_commit": "0edefe3eb57fc1516e61ea674037b54c6271ffbd",
     "public_repository_verified": true,
     "clean_clone_verified": true,
     "clean_clone_tests": 106,
     "working_tree_tests": 106,
     "github_actions_conclusion": "success",
-    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29673502458",
-    "verified_at": "2026-07-19T04:49:36Z"
+    "github_actions_run": "https://github.com/vemodalen-x/TEMPO/actions/runs/29674368125",
+    "discovered_tests": 107,
+    "skipped_tests": 1,
+    "verified_at": "2026-07-19T06:53:34Z"
   },
   "submission": {
     "challenge_slug": "openai",

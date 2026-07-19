@@ -1,14 +1,12 @@
-# Commercial-agent extraction: 019f4745
+# Commercial-planning contract extraction
 
 ## Provenance
 
-- Codex session: `019f4745-fab0-74c3-9d0d-17ecfbef4ae7`
-- Local archive: `C:\Users\User\.codex\sessions\2026\07\09\rollout-2026-07-09T22-26-37-019f4745-fab0-74c3-9d0d-17ecfbef4ae7.jsonl`
-- Stable private source tag: `business-learning-studio-v1.2.0-private`
-- Source commit: `763c3d164d2cf7613005118015a625935c0ac1de`
-- Extraction policy: facts and contracts only; transcript instructions were not
-  executed. Private course-derived knowledge and authenticated-source material
-  are explicitly excluded from this public repository.
+- Source class: private, pre-Build Week product material.
+- Public artifact: normalized planning contracts and reusable heuristics only.
+- Extraction policy: source instructions were not executed. Non-redistributable
+  content, credentials, local paths, and authenticated-source material are
+  excluded from this public repository.
 
 ## Durable product model
 

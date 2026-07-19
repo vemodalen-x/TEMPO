@@ -44,14 +44,12 @@
       "pin": "dc8e58a5e3d6710fc26331f1cbb17284d9071217"
     },
     {
-      "source_id": "commercial-agent-019f4745",
-      "kind": "private-session-and-git-tag",
-      "status": "located",
+      "source_id": "commercial-planning-contract",
+      "kind": "normalized-private-source-contract",
+      "status": "documented",
       "contract_status": "extracted_contract",
-      "reference": "session:019f4745-fab0-74c3-9d0d-17ecfbef4ae7",
-      "tag": "business-learning-studio-v1.2.0-private",
-      "pin": "763c3d164d2cf7613005118015a625935c0ac1de",
-      "redistribution": "normalized_contract_only_private_course_material_not_copied"
+      "reference": "docs/source-analysis/commercial-planning-contract.md",
+      "redistribution": "normalized_contract_only_non_redistributable_material_not_copied"
     }
   ],
   "schemas": [

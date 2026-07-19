@@ -3,7 +3,7 @@
   "primary_task": {
     "candidate_task_id": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
     "surface": "Codex Desktop",
-    "configuration": "Codex 5.6 / GPT-5.6, Sol Ultra mode, as explicitly selected for the primary build task",
+    "configuration": "Codex 5.6 / GPT-5.6, Sol Ultra mode",
     "feedback_session_id": "019f6fc9-488b-7be0-9cff-2e9bfbd7a19f",
     "feedback_status": "owner_confirmed"
   },
@@ -16,13 +16,13 @@
   "material_contributions": [
     {
       "id": "AI-SOURCE-RECONCILIATION",
-      "description": "Compared the supplied TEMPO v1.3 archive, pinned VEMO commit, and earlier commercial-agent contract; separated implemented mechanisms from specifications and excluded private course-derived material.",
+      "description": "Compared the supplied TEMPO v1.3 archive, pinned VEMO commit, and earlier commercial-planning contract; separated implemented mechanisms from specifications and excluded non-redistributable source material.",
       "outputs": [
         "docs/source-analysis/inventory.md",
         "docs/source-analysis/conflict-matrix.md",
         "docs/source-analysis/tempo-v1.3.md",
         "docs/source-analysis/vemo-dc8e58.md",
-        "docs/source-analysis/commercial-agent-019f4745.md",
+        "docs/source-analysis/commercial-planning-contract.md",
         "THIRD_PARTY_NOTICES.md"
       ]
     },
