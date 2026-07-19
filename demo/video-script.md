@@ -1,7 +1,8 @@
 # Video script (target: 2:40)
 
-The final video must be public on YouTube, shorter than three minutes, and
-include audio. This is a script only; no upload has been performed.
+The published judge video is unlisted on YouTube, 140 seconds long, and includes
+audio. The organizer permits unlisted videos and AI voiceover. This file keeps
+the intended story and claim boundary reviewable alongside the final cut.
 
 ## 0:00–0:20 — Problem first
 
@@ -72,8 +73,8 @@ decision in schemas and kernel logic, and generated adversarial tests. That is
 material build-time use, mapped to files in the repo—not a live model call in
 the product. TEMPO spends agent speed only after the decision is ready.”
 
-Before recording, paste the confirmed `/feedback` value into the submission
-record. Do not imply a live runtime API call; this release has none.
+The confirmed `/feedback` value is recorded in `submission/session.json`. The
+video does not imply a live runtime API call; this release has none.
 
 ## Recording checklist
 
@@ -82,4 +83,5 @@ record. Do not imply a live runtime API call; this release has none.
 - Narrate the work outcome before implementation details.
 - Show at least one denial and the actionable next step.
 - Show that fixture, local-integrity, and human-owned labels remain visible.
-- Verify the final YouTube URL is public and audio plays in a private browser.
+- Verify the final YouTube URL is unlisted or public and audio plays in a
+  signed-out browser.

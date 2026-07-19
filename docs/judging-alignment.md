@@ -28,7 +28,8 @@ ID produced by `/feedback`. Both Codex and GPT-5.6 must be used meaningfully,
 not incidentally or decoratively, and their roles must be explained in the
 README and video. `submission/ai-usage.json` maps the material build-time use to
 repository artifacts; `submission/checklist.md` tracks the remaining external
-items without pretending they are complete.
+obligations and the read-back-confirmed submission without pretending that
+future accessibility or judging outcomes are complete.
 
 ## How the runnable slice answers each criterion
 
@@ -114,7 +115,7 @@ These are defensible UX decisions, not inside knowledge about the panel.
 
 ## Judge path
 
-1. Run the clean-clone setup in `README.md`.
+1. Use the `Judge in 60 seconds` path in `README.md`.
 2. Execute the one-command demo.
 3. Observe model-only/insufficient evidence blocked.
 4. Observe an evidence-backed case become eligible for authorization.
@@ -122,6 +123,11 @@ These are defensible UX decisions, not inside knowledge about the panel.
 6. Observe one in-scope start succeed after demo authorization.
 7. Observe protected-input drift invalidate the warrant.
 8. Inspect the ledger, assessment, receipt, and blank human verdict section.
+
+For a visual product pass, serve `demo/` locally and open the bilingual,
+read-only audit console. Its records are explicitly synthetic interaction
+fixtures, not live authority or customer evidence; the CLI remains the
+executable source of truth.
 
 The video script keeps that sequence under three minutes and spends its opening
 seconds on the work problem rather than the architecture.

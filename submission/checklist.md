@@ -37,11 +37,14 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
   it to YouTube, set visibility to unlisted or public, and test playback in a signed-out
   browser.
 - [x] Record in English or provide the organizer-required English translation.
-- [ ] Use only owned or properly licensed music, fonts, logos, trademarks, and
-  other video/repository assets; retain attribution where required.
+- [x] Asset audit found no music or external images/logos in the final video;
+  visuals use synthetic shapes and system fonts, and the organizer explicitly
+  permits AI voiceover. Retaining any applicable voice-provider authorization
+  remains an owner obligation.
 - [x] Replace all video URL placeholders and confirm the link resolves.
-- [ ] Keep the repository and video free and judge-accessible through the end
-  of the official judging period.
+- [x] Repository and video were judge-accessible at submission and final
+  read-back. Continued accessibility through judging is tracked below as an
+  ongoing owner obligation rather than a one-time packaging check.
 - [x] Submit as an individual with Singapore as country of residence; no
   additional team member is listed.
 - [x] Repository owner delegated the final description, category, repository,
@@ -77,18 +80,20 @@ Deadline recorded on 2026-07-17: **2026-07-22 00:00 UTC / 2026-07-21 17:00 PT /
 
 ## Video content
 
-- [ ] Opens with the work problem and target user in the first 20 seconds.
-- [x] Shows the clean one-command demo.
-- [ ] Shows `EXPERIMENT_REQUIRED` and its actionable next experiment.
-- [ ] Shows readiness eligibility while `build_allowed` remains false.
-- [x] Shows start blocked without a warrant.
-- [x] Shows one valid bounded start and one drift/out-of-scope denial.
-- [x] Shows a ledger/receipt and blank human verdict section through narration and diagrams.
-- [ ] Explains concrete Codex and confirmed GPT-5.6 use.
-- [x] Clearly labels fixture evidence and demo-only/local-integrity signing.
-- [x] Does not claim live API use, production signing, real customer validation,
-  measured savings, deployment, or external attestation unless independently
-  added and verified before recording.
+- [x] The 140-second cut opens with the work problem and explains TEMPO's
+  evidence, readiness, authorization, denial, ledger, and verdict journey.
+- [x] The cut includes audio, safe-area English captions, real terminal output,
+  and an explicit fixture/local-integrity claim boundary.
+- [x] Codex and GPT-5.6 build-time use is stated in the cut and mapped concretely
+  to artifacts in `submission/ai-usage.json` and the Devpost description.
+- [x] The cut does not claim live API use, production signing, real customer
+  validation, measured savings, deployment, or external attestation.
+
+Presentation trade-off: the published cut uses a compact slide-led explanation
+and a downstream governed-product terminal example rather than showing every
+literal CLI state. The README's 60-second path and `python bin/tempo demo` are
+the authoritative executable proof for `EXPERIMENT_REQUIRED`, readiness while
+`build_allowed: false`, bounded start, and drift denial.
 
 ## Devpost fields
 

@@ -66,14 +66,28 @@ python bin/tempo demo
 python bin/tempo verify --level all
 ```
 
+For a browser-first review, serve only the demo directory and open the
+bilingual audit console:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1 --directory demo
+```
+
+Then visit `http://127.0.0.1:8000/audit-console.html`. The console is a read-only
+interaction prototype backed by an explicitly synthetic, hash-chained fixture;
+it cannot read live authority or authorize work. Its fixture and browser
+contracts are independently verified by `demo/verify-audit-console.py` and
+`demo/verify-audit-console-browser.py`.
+
 Repository: [github.com/vemodalen-x/TEMPO](https://github.com/vemodalen-x/TEMPO)
 
 Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://github.com/vemodalen-x/understand-video)
 
 Video: [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I)
 
-The video demonstrates the public `4a73350` baseline. The final release candidate
-`728ffc2` adds Git-subject and ledger failure-atomicity hardening without changing
-the judge journey shown in the video.
+The video demonstrates the public `4a73350` graph baseline. The verified product
+release `7d320b5` adds the bilingual audit console, V2 Git-subject binding, and
+ledger failure-atomicity hardening without changing the governed journey shown
+in the video. The repository and green CI are authoritative for the final code.
 
 Category: **Work & Productivity**
