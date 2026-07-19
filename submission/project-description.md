@@ -7,14 +7,13 @@ Turn “should we build?” into evidence, a human decision, and a bounded start
 ## Why I built it
 
 I started TEMPO while building Understand Video on my own. Codex made every
-implementation iteration faster, but I caught myself treating a convincing
-model answer as a reason to keep coding. The missing question was not “can the
-agent build this?” It was “who decided this should be built, from what
-evidence, and within what exact scope?”
+implementation iteration faster, but speed did not answer a different
+question: “who decided this should be built, from what evidence, and within
+what exact scope?”
 
-TEMPO grew out of that problem. It blocked my own downstream build when its
-evidence, repository identity, or authorization did not match. That failure was
-the feature I needed.
+TEMPO grew out of that problem. It blocked my downstream build when its
+evidence, repository identity, or authorization did not match. Those blocks
+became direct evidence that the framework was doing its job.
 
 This submission is **TEMPO**. [Understand Video](https://github.com/vemodalen-x/understand-video)
 is the separate downstream product I used to dogfood the framework and produce

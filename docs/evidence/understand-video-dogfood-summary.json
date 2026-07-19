@@ -72,7 +72,7 @@
   "limitations": [
     "The three workspaces include recovery and replay. Their 13 readiness blocks are not 13 independent business decisions, and their 79 events are not 79 unique work items.",
     "The source ledgers remain local and are not published because the product and governance repositories are deliberately separated. The hashes make this derived record stable but do not let a public reader independently replay the private ledgers.",
-    "The dogfood run used earlier TEMPO baselines, including 4afc6a3 and the 4a73350 product target, rather than the final 7d320b5 release.",
+    "The dogfood run used earlier TEMPO baselines, including 4afc6a3 and the 4a73350 product target, rather than submitted release 7cfa656 and its executable hardening baseline 0edefe3.",
     "Understand Video media receipts are fixture-mode and authoritative=false. They are technical product evidence, not authoritative TEMPO receipts.",
     "The case demonstrates that TEMPO changed one real development workflow. It does not establish customer demand, adoption, causal productivity impact, or savings."
   ]
