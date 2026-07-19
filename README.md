@@ -212,6 +212,14 @@ and the business owner gets a reviewable verdict memo. No measured savings are
 claimed in this release; time and avoided-cost impact remain hypotheses for a
 real pilot.
 
+The framework has nevertheless changed one real internal development process.
+The limitation-labeled
+[Understand Video single-founder dogfood](docs/understand-video-dogfood.md)
+records repeated readiness blocks, one fail-closed authority revocation, and a
+recovery run with one valid start plus 38 exact-path lease rotations while an
+independent public product was delivered. This is process evidence, not
+customer validation or a savings claim.
+
 See [docs/judging-alignment.md](docs/judging-alignment.md) for the official
 criteria mapping and the explicit boundary between published guidance and
 inferred OpenAI UX sensibilities.

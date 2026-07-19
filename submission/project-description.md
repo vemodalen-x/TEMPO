@@ -56,6 +56,16 @@ The second challenge was making local evidence honest. A hash chain alone does n
 
 The first audience is product and innovation leads repeatedly handing ambiguous initiatives to coding agents. TEMPO can also give founders, research, finance, engineering, agencies, and security reviewers one shared decision trail. A real pilot would measure avoided implementation starts, decision-cycle duration, time to identify the next experiment, and budget or scope drift caught. Those outcomes remain testable hypotheses rather than invented results.
 
+TEMPO has already changed one real internal workflow. Three preserved
+single-founder workspaces from the independent Understand Video build recorded
+repeated readiness/input failures. One unsafe start-accounting failure revoked
+authority; after recovery and a new human authorization, TEMPO recorded one
+valid start and 38 bounded exact-path lease rotations while the public MVP was
+delivered. The repository case study publishes the derived counts, source
+ledger hashes, product commits, and limitations. Because the workspaces include
+recovery and replay, these are not independent business decisions or unique
+work items, and they do not establish customer value or measured savings.
+
 ## Try it
 
 ```bash
@@ -85,9 +95,10 @@ Supporting downstream proof: [github.com/vemodalen-x/understand-video](https://g
 
 Video: [youtu.be/3eIxgVo9z4I](https://youtu.be/3eIxgVo9z4I)
 
-The video demonstrates the public `4a73350` graph baseline. The verified product
-release `7d320b5` adds the bilingual audit console, V2 Git-subject binding, and
-ledger failure-atomicity hardening without changing the governed journey shown
-in the video. The repository and green CI are authoritative for the final code.
+The video demonstrates the public `4a73350` graph baseline, including the
+bilingual audit console. The verified TEMPO release `7d320b5` adds V2
+Git-subject binding and ledger failure-atomicity hardening without changing the
+governed journey shown in the video. The repository and green CI are
+authoritative for the final code.
 
 Category: **Work & Productivity**
