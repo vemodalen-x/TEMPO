@@ -1,8 +1,12 @@
-# Video script (target: 2:40)
+# Historical video script (superseded 140-second cut)
 
-The published judge video is unlisted on YouTube, 140 seconds long, and includes
-audio. The organizer permits unlisted videos and AI voiceover. This file keeps
-the intended story and claim boundary reviewable alongside the final cut.
+This file preserves the recording plan for the earlier 140-second cut. It is
+not the current submission script. The final public 155-second judge video is
+<https://youtu.be/CbfAwNdwy5c>, filmed against commit
+`262816ec27e2a85a00c318b2489df51adf26cca2`. The historical timing and wording
+below remain unchanged for provenance; `README.md` and
+`submission/release-verification.json` are authoritative for the submitted
+media.
 
 ## 0:00–0:20 — Problem first
 

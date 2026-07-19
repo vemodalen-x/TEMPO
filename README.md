@@ -230,8 +230,10 @@ See [docs/judging-alignment.md](docs/judging-alignment.md) for the official
 criteria mapping and the explicit boundary between published guidance and
 inferred OpenAI UX sensibilities.
 
-The maintained recording plan is [demo/video-script.md](demo/video-script.md).
-The judge video is available at [youtu.be/CbfAwNdwy5c](https://youtu.be/CbfAwNdwy5c).
+The superseded 140-second recording plan is preserved in
+[demo/video-script.md](demo/video-script.md) for provenance. The final
+155-second judge video is available at
+[youtu.be/CbfAwNdwy5c](https://youtu.be/CbfAwNdwy5c).
 
 ## Codex and GPT-5.6
 
